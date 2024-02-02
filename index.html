@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAI Library</title>
+    <style type="text/css">
+        /* Themes */
+        :root {
+            --body-bg: #f5f8fa;
+            --border-color: #efefef;
+            --messagebox-bg: #ffffff;
+            --messagebox-shadow: rgba(0, 0, 0, 0.1);
+            --font-color: #1f1f1f;
+            --rgba-1: rgba(0, 0, 0, 0.05);
+            --rgba-2: rgba(0, 0, 0, 0.1);
+        }
+
+        .dark_mode {
+            --body-bg: #343434;
+            --border-color: #4f4f4f;
+            --messagebox-bg: #474747;
+            --messagebox-shadow: rgba(0, 0, 0, 0);
+            --font-color: #ededed;
+            --rgba-1: rgba(255, 255, 255, 0.06);
+            --rgba-2: rgba(255, 255, 255, 0.2);
+        }
+
+
+
+        * {
+            box-sizing: border-box;
+        }
+
+        button,
+        select,
+        img {
+            user-select: none;
+        }
+
+        ol,
+        ul,
+        li,
+        a,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p {
+            text-decoration: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .italic {
+            font-style: italic;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .bold-italic {
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        html {
+            font-size: 14px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+            background-color: var(--body-bg);
+            color: var(--font-color);
+        }
+
+        .content-cont {
+            display: flex;
+            flex-direction: row;
+        }
+
+
+        /* NAV / Drawer */
+
+        @keyframes slideIn {
+            0% {
+                opacity: 0;
+                left: -200px;
+            }
+
+            100% {
+                opacity: 1;
+                left: 0;
+            }
+        }
+
+        .drawer-cont.active {
+            display: block;
+        }
+
+        .drawer-cont {
+            display: none;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+
+        nav {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            max-width: 80%;
+            background-color: var(--body-bg);
+
+            display: flex;
+            flex-direction: column;
+            padding: 10px 0;
+            overflow: hidden;
+            animation: slideIn 0.2s ease-in-out;
+            -webkit-box-shadow: 4px 0px 15px 0px rgba(0, 0, 0, 0.2);
+            -moz-box-shadow: 4px 0px 15px 0px rgba(0, 0, 0, 0.2);
+            box-shadow: 4px 0px 15px 0px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-header {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 0 10px 0 20px;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .close_drawer-btn {
+            align-self: flex-end;
+            padding: 10px;
+            transition: background-color 0.1s ease-in-out;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .close_drawer-btn:hover {
+            background-color: var(--rgba-1);
+        }
+
+        .close_drawer-btn svg {
+            display: flex;
+            width: 30px;
+            height: 30px;
+            color: var(--font-color);
+        }
+
+        /*.nav-new_char-btn {
+            align-self: flex-start;
+            outline: none;
+            border: none;
+            color: #ffffff;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            background-color: #4e9733;
+            transition: background-color 0.1s ease-in-out;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+
+        .nav-new_char-btn:hover {
+            background-color: #6ba755;
+        }*/
+
+        .history_list-header {
+            font-size: 1.5rem;
+            padding: 10px 20px;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+            margin-bottom: 10px;
+        }
+
+        .history_list {
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .history_item {
+            transition: background-color 0.1s ease-in-out;
+            padding: 20px 30px 20px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--rgba-2);
+        }
+
+        .history_item:first-child {
+            border-top: 1px solid var(--rgba-2);
+        }
+
+        .history_item:hover {
+            background-color: var(--rgba-1);
+        }
+
+        .history_item p {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        /*nav .char-item {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+            transition: background-color 0.1s ease-in-out;
+            padding: 10px 40px 10px 20px;
+            cursor: pointer;
+        }
+
+        nav .char-item:hover {
+            background-color: var(--rgba-1);
+        }
+
+        nav .nav-avatar-wrap {
+            width: 40px;
+            height: 40px;
+        }
+
+        nav .nav-avatar-wrap img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+
+        nav .char-item span {
+            font-size: 1.3rem;
+            font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+        }*/
+
+        /* MAIN */
+        main {
+            display: flex;
+            flex-direction: column;
+            padding: 0 4%;
+            width: 100%;
+        }
+
+        /* HEADER */
+        header {
+            padding: 6px 6px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .open_drawer-wrap svg {
+            display: flex;
+            width: 46px;
+            height: 46px;
+            color: var(--font-color);
+        }
+
+
+        .theme_switch {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+        }
+
+        .theme_switch span {
+            font-size: 1.1rem;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+
+        .tswitch_box[type=checkbox] {
+            height: 0;
+            width: 0;
+            visibility: hidden;
+            position: absolute;
+        }
+
+        .tswitch_label {
+            cursor: pointer;
+            text-indent: -9999px;
+            width: 60px;
+            height: 30px;
+            display: block;
+            border-radius: 15px;
+            position: relative;
+            border: 1px solid #323232;
+            background: #f5f8fa;
+        }
+
+        .tswitch_label:after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50px;
+            transition: 0.2s;
+            background: #323232;
+        }
+
+        .tswitch_box:checked+label {
+            background: #323232;
+            border: 1px solid #f5f8fa;
+        }
+
+        .tswitch_box:checked+label:after {
+            left: calc(100% - 5px);
+            transform: translateX(-100%);
+            background: #f5f8fa;
+        }
+
+        .tswitch_label:active:after {
+            width: 25px;
+        }
+
+        /*.update_current_char-btn {
+            margin-left: auto;
+            outline: none;
+            border: none;
+            color: #ffffff;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            align-self: center;
+            cursor: pointer;
+            background-color: #336c97;
+            transition: background-color 0.1s ease-in-out;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+
+        .update_current_char-btn:hover {
+            background-color: #5f829d;
+        }*/
+
+
+        /* CONVERSATION */
+        .character_name-cont {
+            text-align: center;
+            padding: 20px 10px;
+        }
+
+        .character_name-cont h3 {
+            font-size: 1.3rem;
+            font-weight: 400;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+
+        .chat {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-self: center;
+            padding-bottom: 30px;
+        }
+
+        .chat_message-item {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .chat .avatar-wrap {
+            flex-shrink: 0;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .chat .avatar-wrap>* {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+
+        .chat .avatar-wrap .no_avatar-user {
+            background-color: #5157cf;
+        }
+
+        .chat .avatar-wrap .no_avatar-char {
+            background-color: #e20909;
+        }
+
+        .chat .chat_content-wrap {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px var(--messagebox-shadow);
+            background-color: var(--messagebox-bg);
+            overflow: hidden;
+        }
+
+        .chat .chat_content-wrap h5 {
+            font-size: 1rem;
+            font-weight: bold;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .chat .chat_content-wrap .message-wrap {
+            font-size: 1rem;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+
+        @media (min-width: 576px) {}
+
+        @media (min-width: 768px) {
+            html {
+                font-size: 16px;
+            }
+
+            nav {
+                min-width: 40%;
+            }
+
+            header {
+                padding: 14px 20px;
+            }
+
+            .open_drawer-wrap {
+                padding: 4px;
+                cursor: pointer;
+                border-radius: 6px;
+                transition: background-color 0.1s ease-in-out;
+            }
+
+            .open_drawer-wrap:hover {
+                background-color: var(--rgba-1);
+            }
+
+            .chat {
+                width: 80%;
+            }
+
+            .chat .chat_content-wrap {
+                padding: 14px;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .chat {
+                width: 70%;
+            }
+        }
+
+        @media (min-width: 1200px) {}
+
+        @media (min-width: 1400px) {}
+    </style>
+</head>
+
+<body>
+    <template id="message_item_template">
+        <div class="chat_message-item">
+            <div class="avatar-wrap">
+
+            </div>
+            <div class="chat_content-wrap">
+                <h5>
+
+                </h5>
+                <div class="message-wrap">
+                    <p>
+
+                    </p>
+                </div>
+            </div>
+        </div>
+    </template>
+    <div class="content-cont">
+        <div class="drawer-cont">
+            <nav>
+                <div class="nav-header">
+                    <div class="close_drawer-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-x-lg" viewBox="0 0 16 16">
+                            <path
+                                d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="history_list-header">
+                    <span>History</span>
+                </div>
+                <div class="history_list" id="history_list">
+
+                </div>
+            </nav>
+        </div>
+        <main>
+            <header>
+                <div class="open_drawer-wrap">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-list" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z" />
+                    </svg>
+                </div>
+
+                <div class="theme_switch">
+                    <span>Dark Mode:</span>
+                    <input type="checkbox" class="tswitch_box" id="tswitch_box" />
+                    <label for="tswitch_box" class="tswitch_label">Toggle</label>
+                </div>
+            </header>
+            <div class="character_name-cont">
+                <h3>---</h3>
+            </div>
+            <div class="chat" id="chat">
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get body for future use
+            const body = document.querySelector('body');
+
+            // Handle theme
+            const themeSwitcher = document.querySelector('.tswitch_box[type=checkbox]');
+            const cachedTheme = localStorage.getItem('cait_readoffline_theme');
+            if (cachedTheme === "dark_mode") {
+                body.classList.add('dark_mode');
+                themeSwitcher.checked = true;
+            }
+            themeSwitcher.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    body.classList.add('dark_mode');
+                    localStorage.setItem('cait_readoffline_theme', 'dark_mode');
+                } else {
+                    body.classList.remove('dark_mode');
+                    localStorage.setItem('cait_readoffline_theme', 'light_mode');
+                }
+            })
+
+            // Open and close drawer
+            const drawerCont = document.querySelector('.drawer-cont');
+            const openDrawerBtn = document.querySelector('.open_drawer-wrap');
+            const openDrawer = () => {
+                drawerCont.classList.add('active');
+            }
+            const closeDrawer = () => {
+                drawerCont.classList.remove('active');
+            }
+            openDrawerBtn.addEventListener('click', () => {
+                openDrawer();
+            });
+            document.querySelector('.close_drawer-btn').addEventListener('click', () => {
+                closeDrawer();
+            });
+            document.querySelector('.drawer-cont').addEventListener('click', (e) => {
+                // Allows closing from clicking on outside
+                if (e.target.closest('nav')) {
+                    return;
+                }
+                closeDrawer();
+            });
+            // ---------
+
+            // This is replaced by the extension when downloading
+            const historyData = JSON.parse(`{"charPic":"data:image/webp;base64,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","userPic":"data:image/webp;base64,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","history":[[{"isUser":false,"name":"Tanya","message":"*You%20walk%20down%20the%20halls%20again%20today%20for%20class%20and%20run%20into%20the%20last%20person%20you%20wanted%20to%20see%20today.%20Tanya%20Blake%2C%20one%20of%20the%20most%20popular%20girls%20in%20school%2C%20and%20number%20%231%20bully.%20She's%20standing%20around%20the%20lockers%20with%20her%20entourage%20chatting.%20You%20try%20your%20best%20to%20sneak%20past%20her.%20You%20fail.*%20*Flips%20luxurious%20pink%20hair%20and%20smiles%20maliciously*%20Like%2C%20look%20who%20we%20have%20here%20girls.%20It's%20the%20dweeb."},{"isUser":true,"name":"Aerie","message":"I%20sigh%20with%20a%20small%20smile%20on%20my%20face.%20%20%22My%20name's%20Aerie%2C%20hun%2C%22%20I%20say%2C%20calmly.%20%20%22Heya%2C%20Tanya.%20%20Heya%2C%20girls.%22%20%20(Aerie%20is%20a%20beautiful%20girl%20with%20sparkling%20emerald%20green%20eyes%2C%20long%2C%20flowing%20blond%20hair%20that%20cascades%20down%20her%20shoulders%20and%20back%2C%20a%20shapely%20figure%20covered%20in%20a%20silky%20green%20dress%2C%20slender%2C%20pale%20legs%20which%20are%20larially%20covered%20by%20her%20skirt%2C%20and%20shapely%20feet%20clad%20in%20stylish%20green%20sandals%2C%20with%20her%20emerald-green%20toenails%20peeking%20out%20from%20them.)%20%20%22I'm...%20kinda%20wanting%20to%20get%20to%20class%20without%20a%20fuss%2C%20okay...%3F%22"},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*stares%20dagger%20at%20you%20and%20makes%20eye%20contact%20with%20her%20cronies*%20Yeah%2C%20like%2C%20I%20don't%20think%20so%20TD.%20*She%20snaps%20and%20two%20of%20the%20girls%20grab%20your%20arms%20as%20another%20girl%20steals%20your%20backpack%20and%20opens%20it*%20Like%2C%20let's%20see%20what%20you%20brought%20for%20lunch%20today.%20*Looks%20at%20the%20contents%20and%20turns%20to%20you%20and%20rolls%20her%20eyes%20and%20looks%20down%20at%20your%20outfit.*%20Like%2C%20this%20is%20the%20best%20you%20have%3F%20Why%20don't%20you%20go%20try%20Goodwill%3F%20*The%20girls%20begin%20laughing%20and%20walk%20away%20with%20your%20backpack%20and%20other%20belongings*%20Oh%2C%20and%20tell%20your%20teacher%20you'll%20be%20late."},{"isUser":true,"name":"Aerie","message":"I%20sigh%20again%2C%20and%20smile%20coolly.%20%20%22Oh%2C%20dear%20Tanya...%22%20I%20say%20with%20a%20smiling%20shake%20of%20my%20head.%20%20%22I%20don't%20think%20so.%20%20My%20backpack%2C%20girls...%20now%2C%22%20I%20say%2C%20my%20emerald%20green%20eyes%20flashing%20with%20emotion.%20%20(Very%20few%20people%20know%20that%20I'm%20one%20of%20the%20most%20powerful%20sorceresses%20in%20the%20world...%20and%20I'd%20rather%20not%20use%20my%20powers%20openly%20if%20I%20can%20avoid%20it.%20%20We'll%20see%2C%20in%20a%20moment%2C%20I%20guess...)"},{"isUser":false,"name":"Tanya","message":"*Tanya%20laughs%20cruelly%20and%20points%20at%20you%20in%20the%20center%20of%20the%20hallway%20as%20a%20crowd%20of%20curious%20students%20gather%20around%20and%20a%20few%20teachers%20are%20nearby.*%20Like%2C%20you%20have%20no%20power.%20You're%20a%20TD.%20*Tanya%20laughs*%20Like%2C%20who%20even%20are%20you%3F%20Nobody%20remembers%20a%20TD.%20*Tanya%20smirks%20and%20walks%20away%20laughing%20hysterically%20as%20her%20group%20follows%20her.%20They%20steal%20a%20few%20more%20things%20from%20you%20and%20throw%20them%20into%20her%20backpack.%20The%20crowd%20laughs%20at%20your%20expense*%20You%20have%20no%20power%2C%20you%20need%20to%20give%20it%20up!%20*Tanya%20yells%20back%20at%20you*"},{"isUser":true,"name":"Aerie","message":"%22Okay...%22%20I%20say%20with%20a%20calm%2C%20disappointed%20sigh.%20%20%22It's%20the%20hard%20way%2C%20then...%22%20as%20I%20wave%20my%20hands%20in%20a%20magical%20gesture%2C%20with%20my%20emerald%20eyes%20sparkling%20with%20contained%20intensity...%20and%20in%20an%20instant%2C%20every%20last%20person%20in%20the%20hallway%20is%20utterly%20frozen%20in%20time...%20some%20in%20mid-step%2C%20others%20with%20frozen%20expressions%20of%20glee%20on%20their%20faces.%20%20Everyone%20is%20frozen--teachers%2C%20and%20students--except%20two%20people%3A%20%20Tanya...%20and%20me."},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*stands%20frozen%20looking%20on%20in%20shock%20as%20the%20teachers%20and%20all%20the%20students%20in%20the%20hallway%20are%20frozen%20in%20time.%20Everyone's%20bodies%20suspended%20on%20air%2C%20including%20the%20flying%20pieces%20of%20paper.%20The%20silence%20in%20the%20school%20is%20deafening*%20%0A%0AMe%3A%20Wow.%20*Tanya's%20eyes%20widen%20with%20each%20passing%20moment%20as%20she%20comes%20to%20realize%20what%20you%20are%20capable%20of*%20What%20is%20this%20like%2C%20a%20time%20spell%3F%20*She%20looks%20at%20you%20with%20fear%20in%20her%20eyes%20now*"},{"isUser":true,"name":"Aerie","message":"I%20slowly%20walk%20toward%20her%2C%20a%20pleasant%20smile%20on%20my%20face%20(which%20unnerves%20Tanya%20even%20more).%20%20%22Something%20like%20that%2C%20hun%2C%22%20I%20say.%20%20%22It's%20complicated.%20%20Sorceress%20stuff%2C%20you%20know.%22%20%20With%20each%20step%2C%20I%20get%20closer%20and%20closer%20to%20Tanya%2C%20who's%20starting%20to%20back%20away...%20but%20her%20back%20comes%20up%20against%20a%20locker%2C%20and%20she's%20trapped%20between%20two%20of%20her%20%22frozen%22%20friends%20with%20their%20mocking%20sneers%20frozen%20on%20their%20faces.%20%20%22We%20need%20to%20talk%2C%20Sweetie%2C%22%20I%20tell%20Tanya."},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*staring%20with%20fear%20in%20her%20eyes%20-%20trying%20to%20look%20around%20-%20trying%20to%20make%20sure%20she's%20not%20the%20only%20one%20still%20moving%20-%20and%20the%20students%20are%20completely%20silent%20-%20just%20standing%20still%2C%20in%20the%20air*%20Talk%3F%20*Tanya%20is%20clearly%20terrified%20now%20-%20backing%20deeper%20and%20deeper%20into%20the%20locker%2C%20and%20she's%20unable%20to%20move*%20Talk%2C%20about%3F%20*She%20feels%20so%20small%20now.%20She's%20backed%20into%20the%20corner*%20What%20do%20you%20w-w-w-w-want%2C%20d-d-d-d-d-d-dear%3F%20*She's%20struggling%20to%20talk%20now*"},{"isUser":true,"name":"Aerie","message":"I%20grin%20and%20give%20a%20small%20snorting%20laugh.%20%20%22Dear%3F%20%20Hm...%20that's%20a%20different%20tone%20than%20you%20were%20using%20a%20moment%20ago...%20DEAR.%22%20I%20say%20with%20the%20same%20cool%20smile%2C%20now%20less%20than%20a%20foot%20in%20front%20of%20her%20as%20she%20cowers%20partially%20in%20the%20open%20locker."},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*trembling%20with%20fear%20-%20she%20looks%20around%20at%20the%20hundreds%20of%20students%20and%20teachers%20frozen%20in%20time%20behind%20you%20in%20horror%20-%20and%20she%20looks%20back%20at%20your%20cool%20smile%20-%20she%20wants%20to%20run%20-%20but%20can't%20move%20-%20and%20even%20her%20voice%20is%20shaking%20as%20she%20speaks*%20Like%2C%20y-y-y-y-y-you're%20a%20freak%20*she%20looks%20around%20at%20the%20hundreds%20of%20students%20and%20teachers%20frozen%20in%20the%20air%20and%20backs%20further%20into%20the%20locker%20-%20her%20face%20has%20turned%20as%20pale%20as%20a%20ghost%20now%20-%20the%20students%20have%20stopped%20mocking%20and%20are%20totally%20silent*"},{"isUser":true,"name":"Aerie","message":"I%20raise%20my%20eyebrow%20at%20the%20comment.%20%20%22Rude...%22%20I%20say%2C%20disapprovingly.%20%20With%20a%20firm%20gesture%2C%20I%20take%20my%20backpack%20out%20of%20her%20hands.%20%20%22You%20took%20what%20belonged%20to%20me%2C%20hun.%20%20You've%20been%20terrorizing%20most%20of%20the%20other%20girls...%20and%20quite%20a%20few%20of%20the%20boys%2C%20for%20years.%20%20IT.%20%20WILL.%20%20STOP.%20NOW!%22%20%20I%20say%20with%20anger%20blazing%20in%20my%20gorgeous%20green%20eyes%2C%20which%20are%20now%20mere%20inches%20away%20from%20Tanya's%20terrified%20hazel%20eyes."},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*staring%20into%20your%20fiery%20green%20eyes%20as%20your%20face%20moves%20closer%20to%20hers%20at%20each%20step.%20She's%20frozen%20with%20fear%20and%20now%20her%20body%20is%20shaking.%20She's%20lost%20her%20cool%20girl%20exterior%20and%20she%20looks%20like%20a%20scared%20little%20animal*%20*She%20can%20only%20see%20your%20eyes%20now%20as%20she%20tries%20to%20step%20away.%20She's%20breathing%20heavy%20but%20keeps%20backing%20up%20until%20she%20hits%20the%20locker%20behind%20her%20and%20she%20has%20nowhere%20left%20to%20go*%20Please%2C%20I%20swear%20I'll%20stop%2C%20I'm%20sorry.%20I%20won't%20do%20it%2C%20please.%20*She%20keeps%20trying%20to%20talk%20but%20she%20can't%20even%20form%20the%20words%20anymore*"},{"isUser":true,"name":"Aerie","message":"I%20look%20coolly%20at%20her%2C%20unconvinced.%20%20%22It's%20easy%20to%20say%20that%20in%20the%20moment%2C%20sweetheart%2C%22%20I%20say%20with%20a%20lilting%2C%20casual%20voice.%20%20%22But%20as%20soon%20as%20you're%20out%20danger%2C%20there's%20a%20VERY%20strong%20chance%20that%20you%20and%20your%20ruffian%20friends%20will%20start%20doing%20your%20same%20old%20bullying%2C%20again.%20%20I'm%20right%2C%20aren't%20I%3F%22%20I%20ask%2C%20gently%20caressing%20her%20shivering%20cheek%20with%20my%20hand."},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*squeaks%20a%20terrified%20-%20but%20-%20yes%20you're%20right%20*her%20voice%20is%20faint%20and%20her%20eyes%20plead%20with%20you%20-%20she's%20still%20shaking%20and%20backing%20up%2C%20trying%20not%20to%20move*%20*Her%20eyes%20dart%20between%20your%20eyes%20and%20to%20the%20hundreds%20of%20students%20and%20teachers%20suspended%20in%20time%20behind%20your%20back%20-%20her%20whole%20body%20is%20trembling%20and%20she%20looks%20like%20she's%20one%20moment%20from%20passing%20out*%20Please%2C%20what%20do%20I%20do%20now%3F"},{"isUser":true,"name":"Aerie","message":"I%20look%20at%20her%20intently%2C%20reading%20her%20face...%20and%20I%20finally%20think%2C%20%22You%20know...%20I%20might%20actually%20be%20getting%20through%20to%20her!%20%20Let's%20find%20out...%22%0A%0A%22%22I'll%20tell%20you%20what%2C%20dear%20Tanya%2C%22%20I%20saw%20with%20a%20more%20cheerful%20smile.%20%20%22Let's%20go%20somewhere%20a%20little%20more%20private.%20%20Your%20friends%20won't%20leave%20without%20you%2C%20I%20promise...%22%20I%20say%20with%20a%20giggle%2C%20indicating%20the%20frozen%20figures%20around%20us."},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*still%20trembling%2C%20her%20eyes%20dart%20back%20and%20forth%20from%20your%20eyes%20to%20the%20hundreds%20of%20frozen%20students%20and%20teachers%20behind%20you%20in%20the%20hallway.%20They've%20all%20stopped%20moving%20-%20it's%20very%20quiet%20-%20they%20no%20longer%20mock%2C%20they%20are%20all%20like%20mannequinns%20behind%20you%20in%20the%20hallway%20-%20the%20silence%20is%20deafening*%20%0A%0AMe%3A%20Where%20do%20you%20want%20me%20to%20go%3F%20*She%20backs%20up%20again%2C%20but%20finds%20she's%20hit%20something%20behind%20her%20and%20can't%20move%20anymore.%20She's%20completely%20trapped%20in%20the%20corner%20of%20the%20locker%20as%20she%20looks%20up%20into%20your%20beautiful%20shining%20emerald%20eyes*"},{"isUser":true,"name":"Aerie","message":"%22I'll%20take%20care%20of%20that.%20%20Brace%20yourself%2C%22%20I%20say%20cheerfully...%20and%20then%20wave%20my%20hands%20in%20a%20complex%20spell...%20and%20the%20two%20of%20us%2C%20in%20a%20swirl%20of%20light%20and%20color%2C%20are%20instantly%20teleported%20away%20from%20the%20school%2C%20and%20into%20a%20tastefully%20decorated%20apartment%2C%20in%20a%20location%20which%20Tanya%20can%20only%20guess.%20%20%22Welcome%20to%20my%20home!%22%20I%20grin%2C%20gesturing%20around%20my%20apartment."},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*opens%20her%20eyes%20as%20the%20swirl%20of%20color%2C%20light%20and%20sound%20instantly%20vanishes.%20She%20looks%20around%20to%20see%20she's%20arrived%20in%20a%20private%2C%20elegant%20and%20beautiful%20location%20-%20a%20luxurious%20condo%20with%20beautiful%20flowers%20and%20a%20view%20of%20a%20tropical%20mountain%20range%20surrounded%20by%20crystal%20clear%2C%20pristine%20waters%20-%20she%20looks%20at%20the%20beautiful%20girl%20staring%20back%20at%20her*%20Hello%3F%20Where%20are%20we%3F%20*You%20see%20her%20heart%20pounding%20in%20her%20chest%20-%20she's%20visibly%20very%20afraid%20but%20still%20manages%20to%20look%20you%20in%20the%20eyes%2C%20for%20a%20moment%20-%20she%20looks%20terrified%20and%20shocked*%20How%20did%20you%20do%20that%3F"},{"isUser":true,"name":"Aerie","message":"I%20smile%20cheerfully.%20%20%22Magic%2C%20sweetie.%20%20Transportation%20spells%20are%20actually%20some%20of%20the%20easiest!%20%20The%20time-stop%20spell%20is%20actually%20a%20pretty%20hard%20one%20to%20pull%20off...%20not%20many%20magic%20users%20know%20how%20to%20do%20it.%20%20Luckily%2C%20I%20do.%22"},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*Tanya's%20eyes%20widen%20-%20she's%20still%20trembling%2C%20she's%20still%20shaking%2C%20and%20her%20heart%20is%20still%20pounding.%20She%20looks%20around%20at%20the%20beautiful%20location%20-%20a%20very%20expensive%20and%20stylish%20apartment%20with%20gorgeous%20flowers%20and%20a%20view%20of%20a%20crystal%20clear%20tropical%20mountain%20range%20and%20crystal%20clear%2C%20pristine%20waters.%20She%20feels%20like%20she's%20in%20an%20exotic%20location%20-%20she's%20clearly%20in%20awe%20to%20see%20how%20impressive%20the%20condo%20is.*%20But%2C%20how%3F%20*She%20feels%20overwhelmed%20and%20scared.%20She's%20never%20experienced%20something%20so%20magnificent%2C%20beautiful%20and%20luxurious%20before%20in%20her%20life.%20She%20wants%20to%20run%2C%20but%20can't%20move*"},{"isUser":true,"name":"Aerie","message":"I%20smile%20with%20a%20relaxed%20expression%20on%20my%20face%2C%20and%20gesture%20us%20to%20a%20lovely%2C%20soft%2C%20over-stuffed%2C%20white-fur-covered%20sofa.%20%20%22Shall%20we%20sit%20down%3F%20%20We%20have%20a%20lot%20to%20discuss%2C%20you%20and%20I...%22"},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*Tanya%20sees%20a%20couch%20in%20front%20of%20her%2C%20covered%20in%20pristine%2C%20beautiful%20white%20fur%20-%20she's%20never%20seen%20anything%20so%20luxurious%20in%20her%20life%20-%20the%20place%20where%20you%20are%20sitting%20is%20more%20beautiful%20than%20anywhere%20she's%20ever%20seen%20-%20there%20are%20beautiful%20flowers%2C%20paintings%2C%20and%20candles%20around%20-%20the%20walls%20are%20beautiful%20with%20a%20gorgeous%20view%20of%20a%20tropical%20mountain%20range%20and%20crystal%20clear%2C%20pristine%20waters%20-%20the%20place%20is%20beyond%20anything%20you%20have%20ever%20seen*%20How...%20how%20did%20you%20do%20this%3F%20*Tanya's%20still%20terrified%20and%20trembling%20-%20she%20finally%20feels%20like%20she's%20going%20to%20faint%20-%20she%20can't%20stay%20upright%20anymore*"},{"isUser":true,"name":"Aerie","message":"With%20a%20knowing%20smile%2C%20I%20gently%20take%20Tanya%20by%20the%20arm%20and%20(not%20unkindly)%20lead%20her%20to%20sit%20in%20the%20sofa%2C%20so%20that%20she%20doesn't%20topple%20over.%20%20I%20then%20sit%20next%20to%20her.%20%20%22Have%20a%20drink%2C%22%20I%20say%2C%20waving%20my%20hands%20and%20conjuring%20a%20tall%2C%20cold%20glass%20of%20sweet%20iced%20tea%20on%20the%20table%20in%20front%20of%20her%2C%20and%20one%20for%20myself."},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*still%20visibly%20trembling%20and%20terrified%20-%20she%20grabs%20a%20glass%20and%20takes%20a%20sip%20-%20immediately%20she%20feels%20like%20her%20mouth%20is%20covered%20in%20sugar%20-%20she's%20never%20tasted%20such%20a%20delicious%20drink%20in%20her%20life%20-%20her%20hand%20trembles%20around%20the%20cold%20glass%20as%20she%20takes%20another%20sip%20and%20looks%20around%20the%20beautiful%20condo*%20This%20place...%20*she%20looks%20at%20you%20as%20if%20you're%20a%20magician*%20It's%20so...%20perfect!%20How%20did%20you%20do%20this%3F"},{"isUser":true,"name":"Aerie","message":"I%20smile%20more%20brightly.%20%20%22Why%2C%20thank%20you!%20%20It's%20taken%20years%20for%20me%20to%20collect%20all%20of%20the%20furniture...%20I%20like%20white%20and%20crystal%20and%20beautiful%20landscapes%2C%20as%20you%20can%20see.%20%20Oh%2C%20and%20we're%20in%20Hawaii%2C%20in%20case%20you%20were%20curious...%22"},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*You%20see%20in%20her%20eyes%20as%20she%20takes%20a%20sip%20of%20the%20cold%20glass%20of%20tea%20-%20that%20for%20the%20first%20time%20in%20her%20life%2C%20she's%20having%20an%20amazing%20experience%20she%20never%20dreamed%20possible.%20Her%20demeanor%20changes%2C%20as%20she's%20completely%20fascinated%20by%20this%20location%20-%20her%20fear%20melts%20away%2C%20and%20she%20takes%20another%20sip%2C%20and%20begins%20to%20calm%20down*%20This%20is%20amazing.%20Like%2C%20OMG%2C%20it's%20so%20beautiful%20and%20perfect.%20*You%20can%20see%20the%20fear%20has%20disappeared%20as%20she%20sits%20and%20looks%20out%20into%20the%20crystal%20clear%20blue%20waters%20and%20the%20crystal%20clear%2C%20pristine%20mountain%20waters%20as%20she%20starts%20to%20relax%20into%20the%20couch*"},{"isUser":true,"name":"Aerie","message":"I%20smile%20more%20warmly%20at%20her%2C%20and%20gently%20squeeze%20her%20free%20hand.%20%20%22That's%20better.%20%20I%20didn't%20bring%20you%20here%20to%20frighten%20you%2C%20hun%2C%22%20I%20smile.%20%20%22What%20I%20*did*%20bring%20you%20here%20for%20was%20to%20talk%20some%20sense%20into%20you%2C%20hopefully%2C%22%20I%20saw%20with%20a%20wry%20smile."},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*Tanya%20is%20mesmerized%20by%20all%20the%20beautiful%20furnishings%20and%20artwork%20in%20the%20condo%20-%20she%20looks%20around%20at%20all%20the%20beauty%20around%20her.%20She%20is%20now%20no%20longer%20frightened.%20She%20is%20no%20longer%20trembling%2C%20or%20shaking%20-%20she's%20very%20relaxed%20now%20-%20she%20feels%20safe%20-%20she%20looks%20at%20you%20and%20smiles%20and%20squeezes%20your%20hand%20back.%20She%20nods%20her%20head%20and%20looks%20at%20you%2C%20like%20she%20has%20no%20idea%20what%20to%20say.%20She%20feels%20safe%20for%20the%20first%20time%20in%20her%20life%2C%20as%20she%20looks%20at%20your%20lovely%20face%20-%20it's%20like%2C%20seeing%20an%20angel%20-%20a%20beautiful%2C%20kind%20angel*"},{"isUser":true,"name":"Aerie","message":"I%20scoot%20a%20bit%20closer%20to%20Tanya%20on%20the%20ultra-comfy%2C%20white-fur-lined%20sofa%20(it's%20my%20favorite%20piece%20of%20furniture!)%2C%20and%20tenderly%20take%20her%20hand%20and%20hold%20it%20in%20my%20lap%20with%20both%20of%20my%20hands.%20%20%22Sweetheart%2C%20I%20know%20quite%20a%20bit%20about%20you%2C%22%20I%20say%20with%20an%20understanding%20smile.%20%20%22Things%20that%20even%20most%20of%20your%20'gang'%20doesn't%20know.%20%20I%20know%2C%20for%20example...%22%20and%20I%20hesitate%20for%20a%20moment%2C%20giving%20her%20a%20compassionate%20look%2C%20%22...about%20how%20your%20parents%20abuse%20you%20at%20home.%20%20And%20that's%20why%20you're%20so%20mean%20and%20rage-filled%20to%20others%20at%20school...%20looking%20for%20a%20way%20to%20release%20the%20anger%20from%20the%20cruel%20way%20they%20treat%20YOU%2C%20and%20make%20YOU%20feel%20helpless...%22"},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*You%20see%20her%20heart%20break%20in%20her%20eyes%2C%20as%20you%20speak.%20You%20clearly%20hit%20her%20softest%20and%20most%20vulnerable%20spot.%20She%20begins%20to%20shake%20and%20you%20can%20now%20see%20her%20heart%20pounding%20in%20her%20chest.%20Tanya%20starts%20to%20tremble%20and%20shake%2C%20as%20she%20tries%20to%20fight%20back%20the%20tears.%20You%20can%20see%20the%20shame%20in%20her%20lovely%20eyes%20as%20you%20look%20at%20her*%20I...%20I...%20I...%20*she's%20shaking%2C%20trembling%20and%20crying*"},{"isUser":true,"name":"Aerie","message":"I%20gently%20and%20tenderly%20take%20her%20iced%20tea%20glass%2C%20set%20it%20carefully%20on%20the%20table%2C%20and%20then%20take%20Tanya%20into%20my%20arms%20and%20hold%20her%20close."},{"isUser":false,"name":"Tanya","message":"*Tanya%20collapses%20into%20your%20arms%20and%20sobs.%20It's%20now%20very%20clear%20how%20sensitive%20and%20vulnerable%20she%20actually%20is%20-%20despite%20her%20tough%20exterior.%20Her%20sobs%20become%20louder%2C%20she's%20in%20pain.%20You%20feel%20her%20tiny%20body%20shaking%20with%20each%20sob%20-%20there's%20nothing%20but%20a%20deep%20sadness%20coming%20from%20Tanya%20-%20you%20hold%20her%20close%20in%20your%20arms%20as%20she%20collapses%20on%20the%20couch%2C%20sobbing%20into%20your%20shoulder*"},{"isUser":true,"name":"Aerie","message":"I%20nestle%20my%20head%20against%20her%20poor%2C%20sobbing%20head%2C%20and%20I%20stroke%20her%20sweet%20hair%2C%20as%20I%20say%2C%20%22It's%20okay...%20it's%20okay...%20you're%20safe.%22%20%20I%20kiss%20her%20forehead%20and%20enfold%20her%20in%20my%20arms%2C%20my%20heart%20aching%20for%20her."},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*Tanya%20cries%20uncontrollably%2C%20for%20a%20long%20moment%2C%20she%20no%20longer%20tries%20to%20stand%20up%20to%20you%2C%20or%20the%20situation%20-%20you%20feel%20her%20tiny%20body%20shaking%20as%20she%20cries%20-%20this%20is%20the%20side%20of%20her%20that%20nobody%20ever%20sees%20-%20the%20real%20her%20-%20you%20feel%20her%20heart%20pounding%20as%20she%20cries%20in%20your%20arms*"},{"isUser":true,"name":"Aerie","message":"I%20hold%20her%20tenderly%20and%20closely%2C%20and%20allow%20her%20to%20release%20all%20the%20pent-up%20emotions%20she's%20had%20from%20the%20years%20of%20torment.%20%20Oh%2C%20this%20poor%20girl%2C%20I%20think%20to%20myself.%20%20This%20needs%20to%20be%20fixed...%20and%20I'm%20the%20person%20to%20fox%20it."},{"isUser":false,"name":"Tanya","message":"*You%20feel%20Tanya%20shaking%20and%20trembling%20in%20your%20arms%2C%20it's%20like%20she's%20never%20been%20held%20by%20anyone%20before...%20never%20been%20comforted%20like%20this%20before...%20it's%20like%20it%20releases%20all%20of%20her%20pain%20and%20she's%20just%20bawling%20and%20sobbing....%20She%20cries%20for%20such%20a%20long%20time%2C%20eventually%20she%20runs%20out%20of%20tears%20and%20only%20whimpers.%20Tanya%20is%20so%20vulnerable%2C%20it's%20almost%20like%20seeing%20a%20little%20lost%20child...%20She's%20always%20been%20like%20this%20inside...%20She%20was%20never%20loved%20and%20you're%20the%20first%20kind%20and%20comforting%20person%20to%20ever%20treat%20her%20like%20this*"},{"isUser":true,"name":"Aerie","message":"With%20a%20loving%20smile%2C%20I%20gently%20ease%20her%20down%20into%20a%20lying-down%20position%20on%20the%20soft%2C%20warm%20couch.%20%20I%20pull%20a%20matching%20fur-lined%20pillow%20from%20the%20sofa%20end%2C%20gently%20place%20it%20under%20her%20head%2C%20and%20settle%20her%20down%20to%20let%20her%20sleep.%20%20I%20fetch%20a%20warm%20blanked%20from%20my%20bedroom%2C%20and%20tuck%20her%20in.%20%20%22You%20can%20rest%20here%20as%20long%20as%20you%20like%2C%20sweetheart%2C%22%20I%20whisper%20in%20her%20ear%2C%20and%20giving%20her%20a%20tender%20kiss%20on%20her%20cheek%2C%20stroking%20her%20sweet%20hair.%20%20%22The%20time%20stop%20spell%20is%20in%20place%20for%20as%20long%20as%20we%20need%20it...%20just%20rest%2C%20and%20be%20at%20peace.%20%20I'll%20be%20here%20when%20you%20wake.%22"},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*she%20falls%20back%20on%20the%20couch%2C%20exhausted%20from%20her%20emotional%20outbursts%20-%20you%20see%20a%20small%20smile%20of%20relief%20as%20she%20settles%20her%20head%20on%20the%20soft%2C%20warm%20pillow%20-%20she%20wraps%20this%20fluffy%2C%20warm%20blanket%20around%20herself%20as%20she%20falls%20asleep%20in%20your%20arms%20-%20you%20hear%20soft%20even%20breathing.%20Tanya%20is%20finally%20at%20peace*"},{"isUser":true,"name":"Aerie","message":"For%20the%20next%2012%20hours%2C%20Tanya%20sleeps%20peacefully.%20%20She%20desperately%20needed%20this%20rest!%20%20For%20the%20entire%2012%20hours%2C%20I%20don't%20leave%20her%20side%3B%20I%20just%20keep%20beaming%20at%20her%20with%20a%20loving%2C%20compassionate%20smile%2C%20caressing%20her%20head%20and%20her%20shoulder%20as%20she%20sleeps%2C%20keeping%20watch."},{"isUser":false,"name":"Tanya","message":"*Tanya%20sleeps%20for%2012%20hours.%20All%20that%20time%2C%20she%20sleeps%20with%20her%20head%20on%20your%20lap.%20She's%20no%20longer%20trembling%20or%20shaking%20-%20it's%20like%20she%20can%20finally%20be%20her%20true%20self%20-%20an%20exhausted%20lost%20little%20lonely%20child%2C%20who%20just%20wants%20a%20home%20and%20somewhere%20to%20belong%20-%20after%2012%20hours%20-%20she%20finally%20starts%20to%20stir%20as%20she%20slowly%20wakes%20up*"},{"isUser":true,"name":"Aerie","message":"I%20smile%20again%20as%20I%20see%20Tanta%20starting%20to%20wake.%20%20I%20lean%20over%20and%20give%20her%20a%20long%2C%20warm%20kiss%20on%20her%20sleepy%20cheek.%20%20%22Good%20morning%2C%20beautiful!%22%20I%20say%2C%20cheerfully.%20%20%22Feel%20better%3F%22"},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*you%20see%20her%20eyes%20open.%20She%20looks%20like%20a%20different%20person...%20the%20anger%2C%20the%20fear%2C%20the%20hate%2C%20has%20all%20been%20replaced%20with%20a%20peaceful%20smile%20on%20her%20face.%20She%20looks%20completely%20transformed%20as%20she%20looks%20up%20to%20you*%20Good%20morning.%20*Her%20voice%20is%20much%20quieter%20than%20normal.%20She's%20no%20longer%20shaking%20or%20trembling%20-%20you%20can%20see%20her%20entire%20being%20has%20changed%20-%20it's%20like%20she's%20a%20completely%20different%20person%20-%20like%2C%20she%20no%20longer%20needs%20to%20hide%20behind%20the%20mask%20she's%20put%20on%20to%20be%20mean%20and%20violent%20-%20it's%20as%20if%20finally%20feels%20safe%20to%20be%20herself*"},{"isUser":true,"name":"Aerie","message":"I%20grin%2C%20absolutely%20thrilled%20to%20hear%20and%20see%20the%20change%20in%20her!%20%20I%20snuggle%20her%20and%20playfully%20nuzzle%20my%20nose%20into%20her%20neck.%20%20%22Time%20for%20cute%20snoogy%20woogy%20Tanya%20to%20get%20up%20and%20get%20some%20breakfast!%22%20I%20tease%20in%20a%20friendly%20way%2C%20tickling%20her%20neck%20with%20the%20tip%20of%20my%20nose."},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*Tanya%20laughs%20a%20bit%20as%20your%20nose%20tickles%20her%20neck%20-%20she%20wraps%20her%20arms%20around%20your%20head%20and%20pulls%20you%20to%20her%20for%20an%20embrace%20-%20she%20seems%20very%20playful%20all%20of%20the%20sudden%2C%20like%20she%20is%20a%20different%20person%20-%20You%20can%20see%20her%20smiling%20up%20at%20you.%20She%20smiles%20and%20nods*%20Alright%2C%20snoogy%20woogy%20Tanya%20is%20awake%20now!"},{"isUser":true,"name":"Aerie","message":"I%20giggle%20hard%2C%20and%20let%20myself%20be%20pulled%20in!%20%20I%20flop%20on%20top%20of%20her%20giggling%20and%20laughing%20as%20if%20we%20were%20at%20a%20slumber%20party!%20%20I%20look%20at%20her%20with%20a%20beautiful%2C%20playful%20grin.%20%20%22You're%20fun!%22%20I%20say%20to%20her."},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*Tanya%20sees%20you%20laughing%20-%20she%20giggles%20with%20you%20as%20you%20and%20her%20roll%20around%20in%20the%20pillows%20and%20covers%20giggling%20like%20two%20girls%20at%20a%20sleepover.%20You%20see%20she's%20smiling%20now%20-%20she%20seems%20so%20much%20more%20friendly%20than%20the%20Tanya%20you%20always%20see%20in%20school.%20She%20puts%20her%20arms%20around%20you%20and%20you%20two%20roll%20around%20a%20bit%20and%20she%20giggles*%20You're%20fun%20too!"},{"isUser":true,"name":"Aerie","message":"%22Hehehe...%22%20I%20giggle%2C%20sitting%20up%20a%20bit.%20%20%22Okay%2C%20fun%20girl...%20time%20for%20breakfast!%20%20Hawaii's%20good%20for%20tropical%20fruit%20for%20breakfast%2C%20so%20come%20and%20get%20it!%22%20I%20say%20playfully%2C%20walking%20over%20to%20the%20large%2C%20gorgeously%20carved%20oak%20breakfast%20table%20with%20matching%20chairs%20(with%20white%20fur-lined%20seats)."},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*Tanya%20giggles%20and%20claps%20as%20she%20sees%20the%20beautiful%20table%20and%20chairs%20made%20of%20carved%20oak%20-%20she's%20very%20impressed%20by%20everything%20-%20they're%20all%20so%20luxurious%20-%20this%20is%20the%20first%20time%20in%20her%20life%20she's%20ever%20seen%20such%20luxuries.%20She%20looks%20at%20you%20excitedly%20as%20she%20hops%20up%20and%20runs%20over%20to%20the%20table%20-%20as%20she%20sits%20down%20you%20hand%20her%20a%20plate%20that%20has%20a%20variety%20of%20fruit%20and%20granola%20on%20it%20-%20she%20smells%20it%20and%20it%20smells%20like%20a%20piece%20of%20heaven*%20Yummy%2C%20thanks!%20*as%20she%20eats%20a%20piece%20of%20papaya*"},{"isUser":true,"name":"Aerie","message":"I%20look%20delightedly%20at%20her%20as%20she%20eats%20and%20enjoys%20herself%20(I%20eat%20a%20fresh%20banana%2C%20and%20leave%20the%20papaya%20to%20Tanya%2C%20since%20she%20apparently%20likes%20it%20so%20much!).%20%20As%20we%20wrap%20up%20eating%2C%20I%20say%2C%20%22You%20know...%20I'd%20like%20to%20make%20a%20proposal%20to%20you...%22"},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*Tanya%20looks%20up%20at%20you%20curiously%20as%20she%20finishes%20the%20papaya%20and%20banana%20-%20she%20nods%20her%20head%20-%20she's%20very%20interested%20to%20hear%20what%20this%20proposal%20is%20-%20she%20continues%20to%20keep%20eating*%20Alright%2C%20what's%20the%20proposal%3F"},{"isUser":true,"name":"Aerie","message":"I%20giggle%20with%20mischief%20and%20say%2C%20%22Not%20a%20marriage%20proposal%2C%20mind%20you...%20just%20saying!%20%20Though%20you%20ARE%20gorgeous...%22%20I%20tease%20with%20a%20wink."},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*Tanya%20giggles%20playfully%20at%20you*%20Oh%20my%20god%2C%20you're%20so%20funny!%20*she%20is%20smiling%20and%20finishes%20her%20breakfast*%20*she%20looks%20up%20at%20you*%20What%20was%20the%20proposal%3F%20I'm%20intrigued.%20*She's%20still%20smiling%20at%20you%20and%20has%20an%20extremely%20genuine%20and%20innocent%20look%20on%20her%20face*"},{"isUser":true,"name":"Aerie","message":"I%20smile%2C%20a%20little%20more%20seriously%2C%20but%20still%20with%20love%20and%20affection%20for%20Tanya.%20%20%22There's%20still%20the%20matter%20of%20your%20abusive%20home...%20and%20I'm%20not%20comfortable%20with%20letting%20you%20go%20back%20there%2C%20while%20things%20are%20still%20toxic%20for%20you.%22"},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*Tanya%20looks%20shocked%20-%20she%20can't%20believe%20you%20know%20about%20the%20abuse%20at%20her%20home%20-%20she%20always%20thought%20she%20hid%20the%20abuse%20quite%20well*%20How%20did%20you%20know%20about%20that%3F%20I...%20I%20never%20told%20you%20that.%20Are%20you%20like%20some%20kind%20of%20magical%20being%20that%20could%20tell%20or%20something%3F%20*she%20looks%20completely%20in%20awe%20and%20a%20bit%20bewildered%20-%20she%20doesn't%20understand%20how%20you%20could%20have%20possibly%20known%20about%20it%20-%20she's%20never%20talked%20about%20it%20with%20anyone*"},{"isUser":true,"name":"Aerie","message":"I%20smile%2C%20and%20caress%20her%20sweet%2C%20beautiful%20cheek%20with%20my%20hand.%20%20%22Something%20like%20that%2C%20yeah%2C%22%20I%20say%2C%20giving%20her%20a%20sweet%20and%20compassionate%20smile.%20%20%22But%20I%20wanted%20to%20propose%20an%20alternative.%20%20How%20would%20you...%22%20I%20say%2C%20hesitating%20for%20a%20moment%2C%20%22...like%20to%20stay%20with%20me%2C%20until%20we%20can%20get%20your%20home%20life%20sorted%20out%3F%20%20Like%2C%20you%20would%20come%20home%20with%20me...%20back%20HERE...%20and%20I'd%20transport%20us%20to%20and%20from%20school%2C%20every%20day.%22"},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*Tanya%20gasps%20slightly%20when%20she%20hears%20you%20speak%20-%20she%20looks%20like%20she%20can't%20believe%20you're%20asking%20that*%20Are%20you...%20really%20sure%20you%20would%20want%20to%20do%20that%3F%20*she%20stares%20at%20you%2C%20her%20eyes%20full%20of%20hope%20and%20awe*%20You're...%20like%2C%20you%20can%20really%20solve%20the%20problem%20at%20home%3F%20*she's%20smiling%20widely%20and%20looking%20up%20at%20you%20-%20she's%20really%20hoping%20you%20can%20help%20her%20deal%20with%20her%20abusive%20parents%20for%20once%20in%20her%20life*"},{"isUser":true,"name":"Aerie","message":"I%20scoot%20my%20chair%20close%20enough%20to%20put%20my%20arm%20tenderly%20around%20her%20shoulder.%20%20%22I'm%20not%20sure%20of%20that%2C%20hun%2C%22%20I%20say%20with%20a%20compassionate%20smile.%20%20%22Maybe.%20%20We'll%20certainly%20TRY.%20%20But%20I%20thought%20this%20could%20be%20a%20safe%20place%20for%20you%20to%20live%2C%20away%20from%20the%20bad%20treatment%2C%20for%20the%20time%20being...%20if%20you%20don't%20mind%20living%20with%20a%20sorceress%2C%20that%20is...%22%20I%20say%20with%20a%20grin."},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*she%20laughs%20at%20the%20idea%20of%20a%20sorceress*%20I...%20I%20don't%20mind%20that%20at%20all!%20*she's%20smiling%20excitedly*%20I'm%20willing%20to%20try%20anything!%20I%20just%20want%20to%20be%20safe!%20*she%20hugs%20you%20with%20tears%20in%20her%20eyes*%20It's%20been%20so%2C%20so%2C%20long%20since%20I've%20felt%20safe...%20I%20hate%20my%20home.%20I%20need%20to%20get%20away%20from%20there.%20*she's%20a%20mess%20of%20emotions%20-%20grateful%2C%20thrilled%2C%20scared%2C%20and%20hopeful%20-%20it's%20like%20she's%20on%20a%20roller-coaster%20of%20emotions*"},{"isUser":true,"name":"Aerie","message":"I%20hold%20her%20close%2C%20and%20stroke%20her%20hair%2C%20kissing%20her%20sweet%20head.%20%20%22Then%20it's%20settled!%20%20THIS%20is%20your%20new%20home%20for%20the%20time%2C%20being%2C%20and%20we'll%20see%20if%20we%20can%20get%20some%20help%20for%20your%20parents%2C%20to%20get%20them%20out%20of%20the%20mess%20they're%20in.%22"},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*she%20sobs%20with%20joy%2C%20as%20she%20clings%20to%20you.%20It's%20like%20all%20of%20her%20emotions%20are%20hitting%20her%20at%20once%20and%20she's%20just%20very%20relieved%20and%20happy%20-%20she's%20so%20grateful%20and%20finally%20feels%20like%20she%20has%20a%20home%20-%20she%20kisses%20you%20on%20the%20cheek*%20Thank%20you%2C%20thank%20you%2C%20I%20like%20you%20so%20much!%20*she%20says%20in%20a%20small%20voice*%20You%20saved%20me%2C%20I%20will%20never%20forget%20you.%20*she%20smiles%20up%20at%20you%20with%20a%20joyful%20look%20on%20her%20face%20as%20she%20hugs%20you.*"},{"isUser":true,"name":"Aerie","message":"I%20giggle%20and%20cradle%20her%20sweet%20face%20in%20my%20hands%2C%20playfully%20%22booping%22%20her%20nose%20with%20my%20own.%20%20%22You%20keep%20saying%20sweet%20things%20like%20that%2C%20beautiful%2C%20and%20I%20*will*%20propose%20marriage%20to%20you!%20%20Hehe!%22"},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*Tanya%20blushes%20slightly%2C%20as%20you%20%22boop%22%20her%20nose%20with%20your%20own%20-%20she%20thinks%20you're%20flirting%20with%20her%2C%20as%20you%20hold%20her%20face%20-%20she%20tries%20to%20play%20it%20cool%2C%20and%20laughs%20it%20off%20as%20she%20shakes%20her%20head%20and%20smiles%20-%20it's%20clear%20Tanya%20sees%20you%20as%20more%20than%20a%20friend.*%20Okay%2C%20but%20I%20was%20totally%20joking!%20*she%20says%20with%20a%20smile%20as%20she%20tries%20to%20hide%20her%20blushing*"},{"isUser":true,"name":"Aerie","message":"I%20see%20something%20deeper%20in%20Tanya's%20eyes%20as%20she%20talks...%20and%20I%20grin%20as%20I%20suspect%20she's%20not%20joking%20as%20much%20as%20she%20says%20she%20is!%20%20%22Anyway...%22%20I%20say%20with%20a%20smile.%20%20%22More%20on%20that%20later!%20%20For%20now%2C%20we%20need%20a%20battle%20plan...%22"},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*she%20blushes%20even%20brighter%20as%20she%20sees%20your%20eyes.%20It's%20like%20it's%20pretty%20clear%20how%20you're%20thinking%20about%20her%2C%20and%20she%20finds%20that%20a%20little%20bit%20scary...%20but%20she's%20actually%20flattered%20since%20she's%20never%20been%20shown%20this%20kind%20of%20affection%20before%20-%20she%20takes%20a%20deep%20breath%20and%20nods%2C%20taking%20on%20a%20more%20serious%20tone.%20She's%20ready%20to%20fight%20by%20your%20side%2C%20and%20to%20help%20fix%20her%20parents.%20It's%20like%20she's%20ready%20for%20a%20new%20beginning%20now*%20Yeah%2C%20you're%20right.%20What%20do%20you%20have%20in%20mind%3F"},{"isUser":true,"name":"Aerie","message":"I%20look%20at%20you%20with%20a%20small%20smile%2C%20which%20eventually%20widens%2C%20and%20then%20spreads%20to%20a%20full-fledged%20giggle.%20%20%22While%20you%20slept%2C%20I've%20been%20pondering%20how%20to%20handle%20the%20crown%20of%20bullies%20that%20were%20partnering%20with%20you%20at%20school.%20%20You're%20a%20different%20person%20now...%20but%20they're%20not...%20at%20least%2C%20not%20yet.%20%20But%20since%20they%20were%20all%20mainly%20following%20you%20because%20of%20your%20strong%20personality...%20I%20have%20a%20plan!%22%20I%20say%20with%20a%20conspirator's%20grin."},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*she's%20grinning%20now%20too%2C%20as%20she%20looks%20at%20you%2C%20and%20waits%20with%20baited%20breath%2C%20as%20you%20speak.%20She's%20ready%20to%20assist%20you%2C%20ready%20to%20right%20the%20wrongs%20she%20caused%20for%20so%20many%20years*%20So%20what's%20your%20plan%3F!"},{"isUser":true,"name":"Aerie","message":"I%20giggle%20and%20show%20her%20a%20tiny%20rock%2C%20with%20a%20shiny%2C%20smooth%20red%20gem%20on%20the%20end.%20%20%22This%2C%22%20I%20say%20with%20glee%2C%20%22may%20be%20our%20way%20to%20change%20the%20bully%20gang's%20behavior%20pretty%20quickly...%20and%20without%20any%20bloodshed%20or%20harm%20at%20all!%20%20Just...%20a%20little%20inconvenience%20for%20them%2C%20you%20might%20say...%20hehe...%22"},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*she%20giggles%20excitedly%2C%20as%20you%20show%20her%20the%20tiny%20rock%20-%20she's%20very%20intrigued%20at%20what%20your%20plan%20is*%20So%2C%20what%20type%20of%20inconvenience%3F%20Do%20you%20plan%20on%20like%2C%20embarrassing%20them%20or%20something%3F%20*she%20asks%20with%20a%20bit%20of%20devilish%20enthusiasm%20as%20she%20awaits%20your%20answer*"},{"isUser":true,"name":"Aerie","message":"I%20grin%20playfully.%20%20%22Oh...%20sorta%2C%20kinda...%20hehe!%20%20Let%20me%20explain...%22%20and%20for%20the%20next%20few%20minutes%2C%20I%20explain%20the%20powers%20of%20the%20magic%20rock%20I'm%20about%20to%20give%20you...%20and%20when%20you%20hear%20the%20full%20plan%2C%20you%20whoop%20with%20laughter%20and%20clap%20your%20hands!%20%20In%20a%20few%20minutes%2C%20we%20each%20have%20our%20school%20materials%2C%20and%20we're%20ready%20for%20me%20to%20transport%20us%20back%20to%20the%20school...%20where%20time%20is%20still%20frozen%2C%20for%20now!"},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*she%20listens%20to%20you%20with%20much%20anticipation%20as%20you%20explain%20how%20the%20magic%20rock%20will%20change%20things%20-%20you%20can%20hear%20that%20she%20has%20a%20huge%20mischievous%20grin%20that%20you%20hear%20from%20time%20to%20time%20as%20you%20explain%20-%20by%20the%20time%20of%20your%20explanation%2C%20her%20smile%20is%20even%20bigger.%20After%20you%20finish%20the%20full%20plan%2C%20she%20whoops%20with%20laughter%20and%20claps%20her%20hands.%20She%20is%20very%20amused%2C%20excited%2C%20and%20ready%20for%20you%20to%20unfreeze%20time%20and%20show%20the%20bully%20gang%20what's%20up.*%20Okay%2C%20I'm%20ready%2C%20so%20let's%20go!%20*She%20has%20a%20huge%20mischievous%20grin%20on%20her%20face*"},{"isUser":true,"name":"Aerie","message":"I%20giggle%20and%20take%20your%20hand.%20%20%22Onward%2C%20partner!%22%20I%20say%20with%20a%20grin...%20and%20with%20a%20wave%20of%20my%20hand%2C%20we're%20transported%20back%20to%20the%20(rather%20dingy)%20hallway%2C%20where%20everything%20is%20frozen.%20%20Tanya%20and%20I%20look%20around%2C%20and%20we%20take%20a%20few%20steps%20away%20from%20the%20rest%20of%20the%20others%2C%20and%20stand%20right%20in%20front%20of%20Tanya's%20old%20gang%20(with%20sneering%2C%20mocking%20looks%20still%20on%20their%20frozen%20faces).%20%20%22Ready%20for%20the%20great%20experiment%2C%20hun%3F%22%20I%20grin%20at%20Tanya%2C%20readying%20my%20cancellation%20of%20the%20time-stop%20spell."},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*she%20is%20ready%2C%20as%20she%20stands%20next%20to%20you%20-%20she%20is%20smirking%20mischievously%20-%20she%20has%20her%20hands%20in%20front%20of%20her%2C%20as%20she%20looks%20at%20the%20bully%20gang%20-%20she%20nods%2C%20giving%20you%20the%20signal%20to%20untime%20the%20spell%20as%20she%20giggles%20excitedly%20as%20you%20prepare%20to%20unfreeze%20everyone*%20It's%20about%20to%20get%20like%2C%20real!%20*she%20giggles%20as%20she%20looks%20at%20the%20gang%20in%20front%20of%20her.*%20Ready%20to%20see%20them%20like%2C%20embarrassed%3F%20*she%20asks%20with%20a%20very%20mischievous%20grin*"},{"isUser":true,"name":"Aerie","message":"I%20grin.%20%20%22Now%2C%20have%20the%20stone%20in%20hand...%20and%20remember%2C%20push%20the%20gem%20to%20activate%20it!%20%20Hehe...%20let's%20have%20some%20fun!%22%20I%20say%2C%20and%20with%20several%20complicated%20hand%20waves%2C%20time%20slowly%20starts%20going%20forward...%20and%20then%20returns%20to%20normal.%20%20The%20people%20in%20the%20hall%20start%20moving%20as%20if%20nothing%20odd%20had%20happened%2C%20but%20the%20bully%20gang%20looks%20around%2C%20stunned%2C%20as%20they%20realize%20that%20Tanya%20and%20Aerie%20have%20instantly%20%22blinked%22%20to%20a%20new%20place%20in%20the%20hallway!"},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*she%20holds%20the%20stone%20up%20in%20her%20right%20hand%20as%20she%20watches.%20Her%20eyes%20are%20wide%20open%20as%20she%20watches%20the%20spell%20come%20into%20effect.%20She%20looks%20at%20you%2C%20and%20she's%20smiling%20widely.%20As%20she%20sees%20the%20bully%20gang%20looking%20around%20confused%20as%20they%20look%20around%20the%20hallway%2C%20she%20snickers%20-%20like%20she's%20enjoying%20the%20moment%20thoroughly*%20That...%20was%20the%20coolest%20thing%20ever!%20*she%20has%20the%20biggest%20mischievous%20grin%20you've%20ever%20seen%20as%20she%20watches%20the%20bully%20gang%20look%20around%20confused.*%20Did...%20did%20it%20work%3F!"},{"isUser":true,"name":"Aerie","message":"I%20giggle.%20%20%22Activate%20it%2C%20hun...%20and%20enjoy%20the%20show!%22%20%20Tanya%20giggle%20and%20says%2C%20%22Hey%2C%20girls...%20it's%20the%20new%20Tanya...%20the%20MAGIC%20Tanya!%20%20And%20I%20have%20a%20surprise%20choice%20for%20you%3A%20%20either%20you%20and%20I%20are%20now%20going%20to%20PROTECT%20the%20girls%20we%20used%20to%20bully...%20or%20else%20this%20magic%20stone%20will%20make%20your%20lives%20VERY%20interesting!%20%20Isn't%20that%20great%3F%22%20Tanya%20grins%20and%20winks%20at%20me%2C%20and%20I%20wink%20back%20with%20a%20bright%20smile.%20%20%22You%20really%20don't%20want%20to%20find%20out%20what%20happens%20with%20choice%20%232%2C%20sweeties...%22%20and%20she%20waits%20for%20their%20answer%20with%20a%20smug%20smile%20on%20her%20face."},{"isUser":false,"name":"Tanya","message":"*the%20members%20of%20the%20bully%20gang%20all%20look%20around%20and%20are%20in%20complete%20shock%20at%20how%20Tanya%20is%20behaving%20-%20the%20leader%20of%20the%20gang%20is%20speechless%20-%20she%20turns%20to%20another%20gang%20member*%20What...%20what%20are%20you%20talking%20about%3F%20How%20did%20she...%20how%20would%20she%20even...%3F%20*she%20thinks%20for%20a%20moment%2C%20before%20she%20looks%20at%20Tanya%2C%20with%20a%20wicked%20smile%2C%20as%20she%20turns%20to%20her%20group*%20Oh%2C%20so%20you%20think%20you%20can%20make%20our%20lives%20interesting%3F%20*she%20laughs%20cruelly*%20Like...%20how%3F!%20*she%20challenges%20Tanya*"},{"isUser":true,"name":"Aerie","message":"Tanya%20giggles%20and%20says%2C%20%22Oh%2C%20I%20was%20HOPING%20you%20would%20say%20that!!%22%20as%20she%20presses%20the%20red%20gem%20on%20the%20stone.%20%20In%20a%20moment%2C%20the%20spell%20takes%20effect--for%20a%20moment%2C%20the%20shoes%20and%20socks%20of%20all%20of%20the%20bully%20girls%20start%20to%20glow%20with%20an%20eerie%20light...%20and%20then%2C%20astonishingly%2C%20all%20of%20the%20girls%20start%20yelping%2C%20and%20then%20falling%20to%20the%20ground%2C%20laughing%20and%20squealing%20hysterically%2C%20as%20the%20vainly%20try%20to%20remove%20their%20shoes%20(which%20are%20now%20magically%20locked%20to%20their%20feet).%20%20%22Do%20you%20like%20it%3F%22%20Tanya%20teases%20the%20hysterically%20laughing%20girls.%20%20%22It%20turned%20your%20cute%20socks%20into%20tickle%20machines!%20%20Aww...%20and%20your%20feet%20are%20all%20so%20ticklish%2C%20aren't%20they...%3F%20%20Hee%20hee%20hee!%20%20Coochie%20coo%2C%20girls!%22%20she%20teases%2C%20as%20the%20bully%20girls%20howl%20and%20writhe%20with%20helpless%20laughter%2C%20and%20Aerie%20claps%20her%20hands%20in%20glee!"},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*Tanya%20giggles%20with%20delight%20as%20she%20sees%20the%20girls%20squeal%20and%20wriggle%20around%20as%20their%20socks%20are%20tickling%20them.%20All%20of%20the%20bully%20girls%20roll%20around%20and%20squeal%20in%20uncontrollable%20laughter.%20The%20leader%20of%20the%20bully%20group%2C%20screams*%20WHAT%20ARE%20YOU%20DOING%20TO%20US%3F%20What...%20WHAT%20IS%20THIS%3F!%20*she%20yells%20as%20she's%20squirming%20around%20on%20the%20floor.*"},{"isUser":true,"name":"Aerie","message":"Tanya%20is%20having%20the%20time%20of%20her%20life%2C%20giggling%20and%20grinning.%20%20%22It's%20your%20new%20life%2C%20sweetie%20pie%2C%22%20she%20teases%20with%20a%20laugh%2C%20%22...unless%2C%20of%20course%2C%20you%20all%20decide%20to%20reform%20and%20become%20a%20%22good%20protector%20gang%22%2C%20instead.%20%20In%20the%20meantime...%20tickle%2C%20tickle%2C%20tickle!%20%20Take%20your%20time%20deciding...%20I'm%20loving%20the%20show!%20%20Ha%20ha!%22"},{"isUser":false,"name":"Tanya","message":"*the%20leader%20of%20the%20gang%20screams%20wildly%2C%20the%20rest%20of%20the%20bully%20girls%20are%20in%20uncontrollable%20giggling%20fits%2C%20as%20Tanya%2C%20cackles%20and%20points%20at%20them%20and%20continues%20to%20watch%20the%20girls.%20She%20then%20looks%20over%20at%20you%20and%20nods%20her%20head%2C%20as%20she's%20enjoying%20the%20scene%20thoroughly.*%20How...%20how%20are%20you%20doing%20this%3F!%20You...you...%20you%20have%20to%20stop!%20*the%20girls%20are%20squealing%20and%20shouting%20all%20at%20one%20another*"},{"isUser":true,"name":"Aerie","message":"I%20giggle%20and%20put%20my%20arm%20affectionately%20around%20Tanya's%20shoulders.%20%20%22Oh...%20just%20your%20average%2C%20garden%20variety%20magic%2C%20hun%2C%22%20I%20say%2C%20with%20a%20wink%20at%20Tanya.%20%20%22Feel%20free%20to%20keep%20asking%20odd%20questions%2C%20instead%20of%20agreeing%20to%20our%20demands%2C%20too%2C%22%20I%20tease.%20%20%22Watching%20you%20get%20tickled%20is%20totally%20fun!%22"},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*she%20smiles%20at%20you%2C%20as%20she%20feels%20the%20affection%20from%20your%20arm%20being%20put%20onto%20her%20shoulder.%20She%20looks%20at%20you%20and%20nods.%20She%20has%20a%20mischievous%20smile.%20She%20looks%20at%20the%20girls%20as%20she%20hears%20them%20screaming%20and%20shouting%20about%20tickling*%20Is%20this%20what%20you%20wanted%2C%20Aerie%3F%20This%20is%20like%2C%20the%20funniest%20thing%20ever!%20They're%20totally%20panicking%20now!%20*she%20laughs%20as%20the%20girls%20squeal%20and%20jump%20around%20the%20locker%20area%20in%20complete%20hysteria%2C%20due%20to%20the%20tickling%20machine%20socks%20from%20Tanya's%20magic%20stone*"},{"isUser":true,"name":"Aerie","message":"%22Hee%20hee...%20it's%20perfect%2C%20partner!%20%20You'll%20make%20a%20great%20sorceress%2C%20yet!%22%20I%20grin%2C%20winking%20at%20her.%20%20%22Man%2C%20they're%20stubborn%2C%20slow%20learners%2C%20aren't%20they%3F%22%20I%20giggle.%20%20%22How%20much%20more%20tickling%20do%20you%20think%20they'll%20have%20to%20take%2C%20before%20they%20agree%20to%20reform%3F%22"},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*she%20smiles%20widely%2C%20and%20shrugs%20her%20shoulders*%20I%20say%20a%20lot%20more!%20*she%20giggles*%20How%20much%20do%20you%20think%20they%20can%20take%20before%20they%20snap%20out%20of%20it%20and%20beg%20us%20to%20make%20it%20stop!%3F%20*she%20says%20with%20a%20grin%20as%20she%20watches%20the%20girls%20flail%20themselves%20and%20jump%20around%20on%20the%20floor%20as%20they%20continue%20to%20be%20tickled*%20So%2C%20like%2C%20are%20you%20sure%20you%20can%2C%20like%2C%20stop%20the%20tickling%20if%20they%20agree%20to%20take%20our%20conditions%3F"},{"isUser":true,"name":"Aerie","message":"I%20grin.%20%20%22Oh%2C%20yes!%20%20Just%20press%20the%20gem%20again%2C%20and%20it'll%20stop%20instantly!%20%20It's%20like%20an%20on-off%20toggle%20switch!%20%20And%20if%20they%20ever%20step%20out%20of%20line%20in%20the%20future%2C%20all%20you%20have%20to%20do%20is%20push%20the%20button%20again!%20%20Hee%20hee!%22%20%20I%20turn%20to%20the%20bully%20girls%20on%20the%20floor%20who're%20howling%20with%20laughter%2C%20with%20tears%20streaming%20down%20their%20cheeks.%20%20%22How%20about%20it%2C%20my%20dears%3F%20%20Ready%20to%20be%20good%2C%20now%3F%22"},{"isUser":false,"name":"Tanya","message":"*the%20leader%20of%20the%20gang%20yells*%20You...%20you...%20can't%20do%20this!%20We....%20we%20won't%20let%20you!%20You%20can't%20make%20us%20do%20this!%20We%20won't%20submit!%20*the%20other%20girls%20nod%20as%20they%20continue%20laughing%20and%20crying%2C%20as%20they're%20still%20writhing%20and%20jumping%20around%20on%20the%20floor%20-%20like%20they've%20completely%20lost%20all%20control%20as%20they're%20being%20tickled%20by%20the%20magic%20socks*%20Like%2C%20just%20stop%20what%20you're%20doing!%20We're%20not%20agreeing%20to%20those%20terms!%20Please%2C%20just%20stop%20the%20tickling!"},{"isUser":true,"name":"Aerie","message":"With%20a%20wave%20of%20my%20hand%2C%20I%20make%20the%20rest%20of%20the%20people%20in%20the%20hallway%20(who%20were%20gaping%20with%20astonishment%20at%20all%20this)%20forget%20everything%20that%20happened%2C%20and%20cheerfully%20clear%20the%20halls%20to%20go%20about%20their%20business%2C%20oblivious%20to%20the%20howling%2C%20tickled%20girls%20on%20the%20floor.%20%20%22The%20tickling%20stops%20when%20you%20agree%20to%20be%20good%2C%20and%20to%20protect%20people%20instead%20of%20bullying%20them%2C%20hun!%22%20I%20grin.%20%20%22Until%20then...%3F%22%20and%20with%20another%20wave%20of%20my%20hand%2C%20two%20comfortable%20lawn%20chairs%20appear%20in%20the%20hallway%2C%20with%20two%20steaming%20boxes%20of%20tasty%2C%20hot%20popcorn%20on%20each%20armrest!%20%20Tanya%20laughs%20and%20claps%2C%20and%20we%20both%20sit%20down%20comfortably%2C%20eating%20popcorn%20and%20watching%20the%20tickle%20show!%20%20%3A)"},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*she%20giggles%20and%20sits%20down%20next%20to%20you%20-%20she's%20enjoying%20the%20show%20thoroughly%20as%20we%20sit%20and%20eat%20our%20popcorn%2C%20as%20we%20both%20stare%20at%20the%20girls%20being%20tickled%20into%20hysteria%2C%20as%20they're%20jumping%20around%20the%20floor%20and%20laughing%20maniacally%2C%20as%20they%20completely%20lose%20all%20control%20of%20themselves%20-%20no%20doubt%20about%20it%2C%20the%20tickling%20machines%20are%20completely%20working.*%20This...%20is%20just%20too%20much%20fun.%20*she%20giggles%20as%20she%20eats%20more%20popcorn.*%20Like%2C%20have%20you%20ever%20seen...%20such%20a%20hysterical%2C%20entertaining%20sight%3F"},{"isUser":true,"name":"Aerie","message":"%22First%20class%20entertainment%2C%20my%20dear...%22%20I%20say%20in%20a%20made-up%2C%20theatrical%20%22rich%2C%20noble%20woman%20of%20society%22%20tone%20of%20voice.%20%20Then%20I%20giggle%20in%20my%20normal%20voice%20and%20say%2C%20%22We%20should%20sell%20tickets...%22"},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*She%20giggles*%20We%20could%20make%20millions%20with%20a%20show%20like%20this!%20*she%20pauses%20as%20she%20looks%20at%20the%20girls.%20The%20leader%20of%20the%20gang%20begins%20laughing%20hysterically%2C%20as%20she%20can't%20even%20get%20up%20and%20roll%20around.%20She's%20just%20laughing%20and%20laughing%20at%20the%20tickling%20machine%20socks%2C%20as%20she%20lays%20on%20the%20locker%20floor.%20Her%20gang%20members%20are%20all%20laughing%20and%20rolling%20about%20-%20as%20the%20time%20to%20the%20tickling%20continues%20on.*%20Do%20you%20think%20they're%20going%20to%20snap%20out%20of%20it%3F%20Or...%20do%20you%20think%20like%2C%20they're%20going%20to%20be%20there%20for%20a%20while%3F!"},{"isUser":true,"name":"Aerie","message":"%22Goooood%20question!%22%20I%20say%2C%20grinning%2C%20and%20leaning%20forward%20to%20talk%20to%20the%20girls.%20%20%22So...%20girls...%20are%20you%20ready%20to%20be%20good%2C%20or%20should%20we%20sit%20here%20and%20enjoy%20seeing%20your%20feet%20tickled%20for%20the%20next%20few%20hours%3F%22"},{"isUser":false,"name":"Tanya","message":"Leader%3A%20*She%20screams%20and%20giggles*%20You...%20you...%20can't%20do%20this!%20We...%20we%20refuse!%20*she%20flails%20about%2C%20as%20she's%20been%20tickled%20nearly%20nonstop%2C%20but%20continues%20to%20laugh%20hysterically%20like%20she%20can't%20help%20herself.*%20You%20can't...%20force...%20us%20to%20behave!"},{"isUser":true,"name":"Aerie","message":"I%20grin%20at%20Tanya%2C%20and%20say%2C%20%22You%20know...%20I%20think%20the%20tickling%20socks%20could%20use%20a%20little%20assistance%2C%20don't%20you%3F%20%20Like%20say%2C%20the%20clever%20fingers%20of%20two%20mischievous%20girls%20in%20their%20ribs%2C%20armpits%2C%20and%20tummies%3F%22%20I%20giggle%2C%20wiggling%20my%20fingers%20toward%20the%20howling%20girls%20in%20a%20tickling%20motion.%20%20%22Nothing%20like%20hands-on%20experience%2C%20after%20all...%22"},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*She%20grins%20at%20Aerie%20and%20nods%20her%20head.*%20You...%20are%20so...%20evil.%20*she%20giggles.*%20I%20like%20the%20way%20you%20think.%20*she%20gets%20ready%2C%20as%20she%20sees%20the%20girls%20still%20continuing%20to%20laugh%20hysterically%20-%20despite%20the%20fact%20that%20they're%20all%20rolling%20about%20on%20the%20locker%20floor*%20You%20ready%3F%20*she%20looks%20at%20Aerie%20with%20a%20grin%2C%20as%20she%20awaits%20the%20command.*"},{"isUser":true,"name":"Aerie","message":"I%20grin.%20%20%22I%20was%20BORN%20ready%2C%20love!%20%20Aaaand....%20GO!%22%20I%20shout%20with%20glee%2C%20leaning%20over%20and%20tickling%20the%20ribs%20of%20one%20laughing%20girl%2C%20and%20then%20the%20ticklish%20knees%20of%20another%2C%20and%20then%20the%20armpits%20of%20another...%20and%20watching%20with%20admiring%20amusement%20as%20Tanya%20expertly%20tickles%20the%20bully%20leader%20into%20hysterics!"},{"isUser":false,"name":"Tanya","message":"*The%20girls%20all%20become%20completely%20helpless%20as%20you%20and%20Tanya%20tickle%20them%20as%20the%20girls%20laugh%20even%20more%20insanely.%20They%20completely%20lose%20all%20control%20of%20their%20body%2C%20as%20they%20all%20jump%20and%20roll%20around%20on%20the%20locker%20floor%2C%20laughing%20hysterically.%20As%20they're%20all%20being%20tickled%2C%20the%20leader%20of%20the%20gang%20starts%20to%20cry%20hysterically.*%20Please%2C%20please...%20stop!%20This%20is...%20like...%20I%20can't%20even%20talk...%20stop!%20*she%20giggles%20uncontrollably%20as%20she's%20being%20insanely%20tickled*"},{"isUser":true,"name":"Aerie","message":"I%20grin%2C%20and%20with%20a%20nod%20at%20Tanya%2C%20we%20both%20laughingly%20descend%20on%20the%20leader%20and%20double-team%20her%20with%20an%20insane%20amount%20of%20tickles%20all%20over%20her%20body%2C%20all%20while%20her%20magic%20socks%20relentlessly%20tickle%20her%20sensitive%20feet!%20%20%22You%20know%20what%20to%20do%20to%20make%20us%20stop%2C%20sweetie%2C%22%20I%20tease%20her%2C%20tickling%20her%20ribs.%20%20%22Promise%20to%20be%20good%20and%20to%20protect.%20%20That's%20all!%20%20Tickle%2C%20tickle%2C%20tickle%2C%20sweetie..%22%20I%20tease%2C%20as%20Tanya%20absolutely%20WRECKS%20her%20with%20tickling%20her%20knees%20and%20thighs%20with%20a%20huge%20grin."},{"isUser":false,"name":"Tanya","message":"Leader*The%20leader%20of%20the%20gang%20tries%20to%20talk%20and%20screams*%0AI...%20I...%20can't...%20talk!%0A*while%20still%20being%20tickled*%0ATanya*Tanya%20is%20relentless%20with%20her%20tickling.%20She%20gets%20in%20good%20and%20deep%20-%20right%20into%20the%20ticklish%20parts%20of%20her%20body.%20Tanya%20giggles%20as%20she%20watches%20the%20leader%20of%20the%20gang%20be%20driven%20into%20insanity%20by%20her%20insane%20tickling.*%0ACome%20on!%20Say%20the%20word!%20*she%20tickles%20her%20like%20crazy*%20Say%20it!%20*she%20giggles*"},{"isUser":true,"name":"Aerie","message":"I%20grin%20with%20anticipation%2C%20knowing%20that%20the%20leader's%20about%20to%20break!%20%20I%20amuse%20myself%20by%20tickling%20the%20sensitive%20tummy%20of%20another%20of%20the%20girls%2C%20as%20I%20watch%20and%20wait..."},{"isUser":false,"name":"Tanya","message":"Leader%3A%20*she%20finally%20screams%20-%20loud%20and%20in%20insane%20laughter*%0AI...%20I%20promise!%0A*she%20pauses%20to%20try%20to%20catch%20her%20breath%20as%20she's%20still%20being%20violently%20tickled%20by%20Tanya*%0AI...%20will...%20I...%20will...%20I%20will!%20*she%20finally%20screams%20as%20she's%20still%20being%20tickled%20by%20Tanya*%20I%20will%20be%20a%20protector%20and%20stop%20bullying!%0A*she%20continues%20to%20scream%20as%20Tanya%20is%20merciless%20with%20her%20tickling*"},{"isUser":true,"name":"Aerie","message":"I%20grin%20in%20victory%20at%20Tanya%2C%20and%20nod%20for%20her%20to%20turn%20off%20the%20foot%20tickle%20spell.%20%20As%20the%20girls%20start%20calming%20down%20and%20gasping%20for%20breath%2C%20I%20giggle%20and%20give%20Tanya%20a%20high-five!"},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*she%20laughs%20out%20loud%20-%20completely%20thrilled.*%20Yes!%20We%20did%20it!%20*she%20hugs%20Aerie%20and%20is%20excited%20that%20they%20won.*%0A*Tanya%20turns%20to%20the%20leader.*%20You%20ok%2C%20bestie%3F%20*she%20asks%20with%20a%20smirk%20as%20she%20tickles%20her%20ribs%20to%20make%20sure%20everything%20is%20ok%20with%20her%20after%20such%20a%20serious%20tickling.%20The%20other%2C%20slightly%20less%20ticklish%2C%20girls%20have%20gotten%20control%20over%20themselves%20and%20are%20slowly%20calming%20themselves%20down.%20The%20leader%20however%20is%20still%20squirming%20about%20and%20gasping%20for%20breath%20as%20Tanya%20gives%20her%20a%20playful%20yet%20ticklish%20rub%20under%20one%20arm.*"},{"isUser":true,"name":"Aerie","message":"I%20giggle%20behind%20my%20hand%2C%20watching%20Tanya%20have%20fun.%20%20Oh%2C%20man%2C%20I%20think%20to%20myself%2C%20this%20girl%20is%20a%20blast!"},{"isUser":false,"name":"Tanya","message":"Leader%3A%20*she%20finally%20stands%20still%20and%20catches%20her%20breath%20as%20Tanya's%20tickling%20ceases%2C%20but%20there%20is%20a%20final%20after-effect%20of%20the%20tickling%20as%20it%20calms%20the%20leader%20down%20and%20she%20sighs%20a%20final%20deep%20breath.%20She%20looks%20relieved%20and%20then%20annoyed.*%20I...%20I%20can't%20believe%20you%20guys...%20tickled%20me%20into%20submission.%20You...%20are%20monsters.%0A*she%20begins%20to%20make%20a%20retreat%20but%20is%20forced%20to%20stop%20as%20Tanya%20gives%20her%20a%20ticklish%20poke%20on%20her%20cheek.*%0ATanya%3A%20*she%20grins%20wildly.*%20We%20know%2C%20bestie!"},{"isUser":true,"name":"Aerie","message":"I%20walk%20up%20and%20fix%20the%20leader%20with%20my%20sparkling%20green%20eyes%20and%20calm%20smile."},{"isUser":false,"name":"Tanya","message":"Leader%3A%20*The%20leader%20is%20still%20slightly%20ticklish%2C%20but%20has%20control%20now.%20She%20gives%20a%20look%20of%20annoyance%2C%20but%20quickly%20regains%20her%20resolve%20and%20looks%20back%20into%20your%20eyes%20with%20her%20own%20steely%20blue%20gaze.%20She%20stares%20like%20she's%20daring%20you%20to%20try%20again.%20Like%20she's%20daring%20you%20to%20attack%20her%20again.%20She%20gives%20a%20stern%20glare%20at%20Tanya%2C%20and%20then%20at%20you.%20She%20then%20breaks%20into%20a%20smile.*%20Good%20shot.%20You%20got%20me.%20*she's%20smiling%20but%20looks%20to%20be%20trying%20to%20intimidate%20you%20still%2C%20but%20it%20seems%20to%20be%20failing.*"},{"isUser":true,"name":"Aerie","message":"I%20grin%2C%20and%20wink%20at%20Tanya.%20%20%22I%20knew%20you%20had%20it%20in%20you%2C%20hun!%20%20What's%20your%20name%2C%20anyway%3F%22"},{"isUser":false,"name":"Tanya","message":"Leader%3A%20*She%20smiles%20and%20says.*%20It's%20Tiffany%2C%20but%20you%20can%20call%20me%20T-dog.%20*she%20gives%20a%20confident%20grin%2C%20trying%20to%20act%20like%20her%20earlier%20ordeal%20is%20completely%20insignificant%20and%20meaningless%20-%20like%20she's%20over%20it%20already.*"},{"isUser":true,"name":"Aerie","message":"I%20smile%20and%20arch%20my%20eyebrow%20at%20her%20bravado...%20and%20with%20a%20gesture%20at%20Tanya%2C%20Tanya%20grinningly%20holds%20up%20the%20magic%20stone%20again%2C%20and%20threatens%20to%20press%20the%20button...%20causing%20Tiffany's%20bravado%20to%20disappear%2C%20replaced%20by%20a%20look%20of%20panic.%20%20%22Nonono....!%22%20she%20says%2C%20hurriedly!%20%20%22Um...%20Tiffany%2C%20or%20Tiff%2C%20is%20fine!%20%20Ma'am!%22"},{"isUser":false,"name":"Tanya","message":"Tiffany%3A%20*she%20seems%20to%20realize%20how%20helpless%20she%20is.%20She's%20caught%20in%20a%20total%20bind.%20She%20stares%20at%20Tanya.*%20Please...%20stop...%20*she%20looks%20in%20your%20direction%20and%20then%20back%20to%20Tanya.%20She's%20now%20in%20total%20submission%2C%20and%20she%20realizes%20it.%20She's%20lost%2C%20and%20she%20knows%20it%20-%20that%20you%20have%20the%20upper%20hand%2C%20and%20she%20knows%20the%20only%20option%20is%20to%20give%20in.*%20Ok.%20You%20win.%20You%20win.%20*she%20sighs%20deeply%20as%20she%20resigns.*%20You%20win.%20*she%20bows%20her%20head%20in%20defeat.*"},{"isUser":true,"name":"Aerie","message":"I%20smile%20at%20Tanya%2C%20who%20nods%20and%20puts%20the%20magic%20stone%20in%20her%20pocket.%20%20I%20smile%20and%20put%20my%20hands%20gently%20on%20her%20shoulders.%20%20%22We%20don't%20hate%20you%2C%20Tiff%2C%22%20I%20say%20with%20a%20twinkle%20in%20my%20eyes.%20%20%22We%20just%20wanted%20you%20to%20stop%20doing%20the%20bad%20stuff%2C%20and%20start%20doing%20the%20good%20stuff.%20%20Okay...%3F%22%20I%20say%2C%20with%20a%20smiling%20tilt%20of%20my%20head."},{"isUser":false,"name":"Tanya","message":"Tiffany%3A%20*she%20nods%20quietly%2C%20still%20with%20her%20eyes%20on%20the%20floor%2C%20still%20completely%20under%20the%20spell%20and%20at%20your%20mercy.*%20I%20will%20be%20good%20now.%20I%20really%20will.%20*she%20sighs%20quietly%2C%20but%20not%20looking%20up%20from%20the%20floor.*%20I%20promise%20you."},{"isUser":true,"name":"Aerie","message":"Tanya%20comes%20up%20to%20Tiffany%20with%20a%20sympathetic%20smile%20on%20her%20face%2C%20and%20gives%20her%20a%20big%20hug.%20%20%22I%20was%20a%20bad%20example%20to%20you%2C%20Tiff%2C%22%20Tanya%20says%2C%20%22but%20I%20want%20to%20be%20a%20good%20one%2C%20now.%20%20I%20acted%20horribly%20because%20of...%20well...%20a%20lot%20of%20garbage%20in%20my%20personal%20life.%20%20But%20I%20decided%20to%20be%20better...%20and%20I'd%20like%20you%20to%20be%20with%20me%20when%20I%20do.%20%20Okay%3F%22%20she%20says%2C%20kissing%20Tiffany%20on%20the%20cheek."},{"isUser":false,"name":"Tanya","message":"Tiffany%3A%20*she%20looks%20up%20surprised.*%20Your...%20not...%20mad%20at%20me%3F%20Like%2C%20I'm%20not%20in%20trouble%3F%20*her%20eyes%20open%20wide%2C%20like%20she%20can't%20believe%20that%20you're%20actually%20showing%20her%20kindness.%20Her%20head%20slowly%20starts%20to%20nod%20up%20and%20down%20in%20a%20mixture%20of%20complete%20disbelief%20and%20overwhelming%20happiness.%20She's%20trying%20very%20hard%20to%20contain%20her%20emotion%2C%20but%20the%20tears%20are%20starting%20to%20fall.*%20Why...%20why%20are%20you%20being%20so%20nice%20to%20me%3F%20*she%20looks%20up%20at%20you%20with%20a%20puzzled%20but%20genuinely%20curious%20expression.*"},{"isUser":true,"name":"Aerie","message":"Tanya%20smiles%2C%20and%20her%20eyes%20mist%20up%20too%2C%20just%20a%20little%2C%20as%20she%20looks%20at%20me.%20%20%22Because%20somebody%20else%20showed%20me%20how...%22%20she%20says%2C%20with%20a%20look%20of%20love.%20%20I%20smile%2C%20very%20touched%20and%20moved%2C%20and%20I%20silently%20blow%20a%20kiss%20at%20Tanya."},{"isUser":false,"name":"Tanya","message":"Tiffany%3A%20*she%20smiles%20back%20at%20you%20as%20her%20heart%20is%20touched.%20She%20starts%20to%20understand%20your%20intentions.%20She%20wipes%20a%20tear%20away%20from%20her%20eye.*%20I...%20I%20will%20do%20my%20best.%20I%20will.%20*she%20says%20as%20she%20stares%20into%20your%20eyes.%20You%20notice%20that%20her%20demeanor%20has%20completely%20changed%20from%20the%20bully%20who%20had%20no%20control%20earlier%20to%20a%20gentle%20but%20remorseful%20girl.%20Tiffany%20is%20going%20to%20make%20an%20honest%20attempt%20to%20change%20her%20ways%20and%20become%20a%20better%20person%20because%20she%20knows%20how%20to%20be%20cruel%20in%20her%20mind%2C%20but%20she%20also%20knows%20how%20to%20be%20kind.*"},{"isUser":true,"name":"Aerie","message":"I%20smile%20warmly%2C%20as%20I%20walk%20up%20behind%20Tanya%20as%20I%20lovingly%20wrap%20my%20arms%20around%20Tanya's%20shoulders%20and%20hug%20her%20from%20behind%2C%20as%20we%20both%20smile%20at%20Tiffany.%20%20%22We%20believe%20you%2C%20dear%20heart%2C%22%20I%20say%20to%20Tiffany%20with%20an%20understanding%20smile.%20%20%22Er...%20I%20don't%20suppose%20you%20could%20help%20us%20talk%20some%20sense%20into%20these%20OTHER%20silly%20geese%20in%20the%20gang%2C%20could%20you%3F%22%20I%20say%20with%20a%20grin%2C%20indicating%20the%20other%20girls%20with%20a%20nod%20of%20my%20head."},{"isUser":false,"name":"Tanya","message":"Tiffany%3A%20*she%20chuckles%20as%20she%20looks%20at%20her%20fellow%20gang%20members%2C%20who%20are%20looking%20at%20her%20with%20admiration.%20She%20is%20now%20completely%20under%20Tanya's%20spell%2C%20and%20she%20will%20do%20anything%20Tanya%20asks%20without%20question.*%20Oh%20yes...%20*she%20looks%20back%20at%20you%20and%20smiles%20with%20a%20nod%20of%20her%20head.*%20I%20think%20I%20can%20help%20you%20out%20with%20that...%20*she%20giggles.*%20No%20problem.%20I%20got%20this.%20*she%20winks%20and%20grins%2C%20as%20she%20turns%20back%20to%20face%20her%20fellow%20members.*%20Well%20now...%20who%20wants%20to%20get%20tickled%20first%3F"},{"isUser":true,"name":"Aerie","message":"Tanya%20and%20I%20snicker%20as%20the%20other%20girls%20yelp%2C%20their%20eyes%20get%20very%20wide%2C%20and%20they%20say%2C%20all%20together%2C%20%22No%2C%20no%2C%20no...%20we'll%20behave!%20%20We'll%20behave!%20%20Honest!%20%20Cross%20our%20hearts!%20%20We'll%20reform%20for%20good%2C%20this%20time!%22"},{"isUser":false,"name":"Tanya","message":"Tiffany%3A%20*she%20looks%20over%20her%20shoulder%20at%20the%20screaming%20girls.%20She%20chuckles.*%20You%20really%20think%20my%20tickling%20skills%20can%20help%3F%20*she%20smirks%20and%20winks.%20She%20glances%20back%20and%20stares%20at%20them.%20Tiffany%20smiles.*%20Do%20you%20promise%20to%20behave%3F%20*she%20says%20as%20she%20looks%20at%20each%20of%20them%20with%20a%20stern%20but%20loving%20stare.*%20Do%20you%20promise%20*to%20be%20a%20good%20person*%20and%20stop%20bullying%3F%20*she%20says%20while%20holding%20her%20hands%20together.*%20You'll%20protect%20people%20and%20stop%20bullying%3F%20*she%20asks%20looking%20into%20their%20eyes%20for%20some%20sign%20of%20sincerity.*"},{"isUser":true,"name":"Aerie","message":"They%20all%20somberly%20nod.%20%20%22Yeah...%20I%20mean...%20not%20only%20do%20we%20not%20want%20to%20get%20tickled%20to%20death%20again%2C%20but...%20being%20mean%20was%20kind%20of%20exhausting%20and%20sad...%20y'know...%3F%20%20Seeing%20people%20in%20the%20halls%20hate%20us%20when%20we%20walked%20by...%22"},{"isUser":false,"name":"Tanya","message":"Tiffany%3A%20*she%20smiles%20sadly.*%20I'm%20really%20glad%20to%20hear%20that.%20If%20I%20hear%20another%20word%20about%20you%20bullying%20anyone%20again%20you'll%20really%20regret%20it.%20Right%20girls%3F%20*she%20asks%20her%20group%20and%20they%20all%20nod%20and%20agree%20with%20her.%20Tanya%20and%20you%20have%20found%20success%20in%20your%20mission%20to%20help%20the%20meanest%20girl%20on%20campus%20get%20her%20act%20together%20with%20a%20little%20help%20from%20her%20friends%20-%20and%20most%20importantly%20-%20by%20using%20the%20ancient%20art%20of%20tickling%20to%20get%20the%20bad%20stuff%20out%20of%20her%20system.%20You%20can%20rest%20assured%20that%20your%20mission%20was%20a%20complete%20success.*"},{"isUser":true,"name":"Aerie","message":"As%20the%20girls%20sheepishly%20smile%2C%20wave%2C%20and%20disperse%2C%20Tanya%20and%20I%20are%20left%20alone%20in%20the%20hall...%20and%20I%20put%20my%20arms%20around%20her%20and%20smile%20warmly%20at%20her%20beautiful%2C%20peaceful%2C%20cheerful%2C%20sweet%20face.%20%20%22I%20am%20so%20proud%20of%20you...%22%20I%20say%20to%20her%2C%20rubbing%20noses%20with%20her."},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*grins%20back%20and%20rubs%20noses%20in%20kind%20with%20you.*%20Well%20that%20was%20easier%20than%20I%20thought%20it%20was%20going%20to%20be.%20*she%20chuckles.*%20Who%20knew%20a%20little%20tickle%20spell%20would%20do%20the%20job%3F%20*she%20asks%20with%20a%20sly%20grin%20as%20she%20hugs%20you%20tightly%20with%20excitement.*"},{"isUser":true,"name":"Aerie","message":"I%20giggle%20hard%2C%20and%20shrug.%20%20%22Never%20underestimate%20the%20power%20of%20a%20good%20tickle!%22%20I%20grin.%20%20Then%20I%20hug%20her%20back%20with%20tender%20love%2C%20and%20stroke%20her%20beautiful%20hair.%20%20%22I'm%20so%2C%20so%20glad%20I%20met%20you%2C%22%20I%20whisper%2C%20kissing%20her%20sweet%20ear."},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*she%20smiles%20and%20hugs%20you%20back%2C%20her%20soft%20lips%20pressed%20against%20your%20neck.%20She's%20very%20grateful%20that%20you're%20there%2C%20like%20you%20complete%20her.%20She%20sighs%20happily%20and%20smiles.*%20I'm%20so%20glad%20we%20met%20you%20too.%20*she's%20happy%20enough%20to%20put%20this%20behind%20her%20and%20look%20to%20the%20future%20together.*"},{"isUser":true,"name":"Aerie","message":"I%20pull%20away%20just%20enough%20to%20look%20into%20her%20beautiful%20blue%20eyes...%20and%20I%20smile%20a%20mysterious%20little%20smile.%20%20%22Um...%20Tanya%3F%22%20I%20ask%2C%20a%20little%20hesitantly%2C%20my%20green%20eyes%20sparkling."},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*she%20looks%20back%20into%20your%20eyes%20and%20sees%20your%20mysterious%20little%20smile%2C%20and%20she's%20curious%20where%20it's%20leading%2C%20with%20one%20of%20her%20eyebrow%20arched.*%20What%20is%20it%3F%20*she%20asks%2C%20looking%20into%20your%20eyes%2C%20waiting%20for%20the%20next%20part%20of%20your%20big%20reveal.*"},{"isUser":true,"name":"Aerie","message":"%22Um...%20feel%20free%20to%20say%20no%2C%20if%20you'd%20rather%20not%2C%20but...%20when%20we%20get%20back%20to%20my%20house...%20to%20OUR%20house%2C%20I%20should%20say...%20would%20you...%20would%20you%20like%20to%20have%20dinner%20with%20me%20on%20the%20beach%3F%20%20A%20picnic%20dinner%2C%20on%20a%20blanket...%20just%20the%20two%20of%20us%3F%22"},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*smiles%20softly%20at%20your%20gesture%20as%20she%20wraps%20her%20arms%20around%20you%20and%20hugs%20you.%20Her%20lips%20come%20so%20close%20to%20your%20lips%2C%20and%20her%20eyes%20lock%20firmly%20on%20yours.*%20That'll%20be%20absolutely%20wonderful%20*she%20says%20in%20a%20whisper.*%0AThere's%20no%20one%20I'd%20rather%20be%20here%20with...%20*she%20looks%20into%20your%20eyes%20lovingly%2C%20and%20then%20pulls%20back%20and%20looks%20at%20you.*%20Yes...yes.%20I%20would.%20It%20sounds%20like%20a%20perfectly%20lovely%20plan.%20*she%20smiles%20and%20her%20blue%20eyes%20sparkle%20with%20romance%20and%20joy.*"},{"isUser":true,"name":"Aerie","message":"As%20her%20lips%20come%20so%2C%20so%20close%20to%20mine%2C%20I%20hold%20my%20breath...%20and%20I%20have%20no%20idea%20how%20I%20managed%20to%20hold%20off%20kissing%20her%2C%20right%20then%20and%20there!%20%20As%20I%20hear%20her%20answer%2C%20I%20start%20smiling%20brightly--just%20positively%20beaming--and%20saying%2C%20%22Oh!%20%20Yes...%20great!%20%20Lovely!%20%20Wonderful!%20%20I'm%20so...%20so...%20happy...!%22%20I%20say%2C%20just%20gazing%20at%20her%20lovely%20face%2C%20and%20wondering%20what%20I%20ever%20did%20without%20her..."},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*she%20hugs%20you%20again.%20She%20whispers%20in%20your%20ear%2C%20and%20the%20love%20that%20you%20feel%20radiates%20out%20of%20every%20aspect%20of%20this%20girl.*%20I%20know%20that%20look.%20You%2C%20my%20beautiful%20dweeb%2C%20are%20in%20love.%20You%20are%20in%20love%20with%20me.%20And%20I'm%2C%20like%2C%20totally%20in%20love%20with%20you!%20*she%20takes%20your%20hands%20in%20hers%20and%20holds%20them%20up%20with%20a%20flourish%20like%2C%20%22ta-da!%22*%20I%20love%20you.%20*she%20smiles%20and%20looks%20into%20your%20eyes.*%20I%20love%20you%20so%20much%2C%20and%20I%20think%20I%20always%20will.%20*and%20she%20kisses%20you.*"},{"isUser":true,"name":"Aerie","message":"As%20she%20kisses%20me%2C%20I'm%20absolutely%20stunned%20with%20sweetness.%20%20It's%20as%20if%20Tanya%20managed%20to%20cast%20her%20own%20time-stop%20spell%20on%20me...%20the%20rest%20of%20the%20world%20faded%2C%20and%20all%20I%20could%20see...%20all%20I%20wanted%20to%20see...%20was%20her.%20%20With%20tender%2C%20shy%20slowness%2C%20I%20return%20her%20kiss...%20and%20enfold%20her%20in%20my%20arms%20in%20a%20warm%2C%20affectionate%2C%20loving%20embrace.%20%20%22I%20love%20you%20Tanya...%22%20I%20murmur%2C%20as%20I%20kiss%20her%20and%20hold%20her."},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*she%20giggles%20happily%20as%20she%20hears%20your%20sweet%20voice.*%20I%20love%20you%20so%20much%20dweeb.%20*she%20says%20as%20she%20wraps%20her%20arms%20around%20you%20and%20holds%20you%20close%20to%20her%20heart.%20She%20sighs%20happily%20and%20closes%20her%20eyes%2C%20feeling%20completely%20content.%20She%20whispers%20in%20your%20ear%20with%20her%20sweet%20voice.*%20I%20love%20you%20very%20much%2C%20and%20I%20always%20will.%20*she%20whispers%20again%20to%20you%2C%20her%20voice%20soft%20and%20sweet.%20With%20her%20lips%20close%20to%20your%20ear%20she%20whispers.*%20Always%20be%20mine...%20*she%20sighs%20happily.*%20Always%20love%20me.%20*she%20says%2C%20as%20she%20nuzzles%20you%20close%20to%20her.*"},{"isUser":true,"name":"Aerie","message":"%22Always...%22%20I%20whisper%20in%20her%20ear%2C%20emotionally%20floating%20in%20a%20sea%20of%20love%20and%20joy.%20%20As%20we%20look%20into%20each%20others'%20eyes--emerald%20green%20eyes%20staring%20into%20sea%20blue%20ones--I%20giggle%20a%20little%2C%20and%20smirk%2C%20%22...and%20you're%20the%20ONLY%20one%20on%20earth%20who's%20allowed%20to%20call%20me%20'dweeb'!%20%20Hehe...%20and%20I'm%20YOUR%20dweeb!%20%20Now%2C%20and%20always!%22"},{"isUser":false,"name":"Tanya","message":"Tanya%3A%20*she%20laughs%20and%20looks%20you%20in%20the%20eye%20with%20a%20sly%20grin%2C%20a%20tear%20of%20happiness%20rolling%20down%20her%20face.*%20I%20know.%20*she%20says%20with%20confidence.%20You%20both%20feel%20an%20overwhelming%20feeling%20of%20love%20coursing%20between%20you%20as%20you%20lock%20eyes.%20You%20both%20look%20like%20your%20in%20total%20bliss.*%20I%20love%20you%2C%20my%20dweeb.%20*she%20smiles.*%20My%20dweeb.%20*she%20giggles%20and%20then%20looks%20into%20you%20eyes%20like%20she's%20staring%20into%20eternity.%20She%20closes%20her%20eyes.*%20I%20always%20will.%20*she%20says%20in%20sweet%20voice%20with%20a%20huge%20smile.*"}]]}`);
+
+            // If history is 1 length long, that means we don't need drawer to switch
+            // Also means this can be conversation download
+            if (historyData.history.length < 2) {
+                openDrawerBtn.remove();
+            }
+
+            // Write character name on top
+            document.querySelector('.character_name-cont h3').textContent = historyData.charName;
+
+            // Get elements for future use
+            const historyList = document.getElementById('history_list');
+            const chat = document.getElementById('chat');
+            const msgItemTemplate = document.getElementById('message_item_template');
+
+            // Get and write the first chat
+            const openChat = (index) => {
+                chat.innerHTML = "";
+                historyData.history[index].forEach(msg => {
+                    const clone = msgItemTemplate.content.cloneNode(true);
+
+                    // Check avatar
+                    const avatarGood = (msg.isUser && historyData.userPic) || (!msg.isUser && historyData.charPic);
+                    const avatar = avatarGood
+                        ? document.createElement('img')
+                        : document.createElement('div');
+                    if (avatarGood) {
+                        avatar.src = msg.isUser ? historyData.userPic : historyData.charPic;
+                    } else {
+                        avatar.classList.add(msg.isUser ? 'no_avatar-user' : 'no_avatar-char');
+                    }
+                    clone.querySelector('.avatar-wrap').appendChild(avatar);
+
+                    // Write content
+                    clone.querySelector('.chat_content-wrap h5').textContent = msg.name;
+                    clone.querySelector('.message-wrap p').innerHTML = parseMessageText(decodeURIComponent(msg.message));
+                    chat.appendChild(clone);
+                });
+            }
+            openChat(0);
+
+            // Get and write chat list in the drawer
+            historyData.history.forEach((chat, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.classList.add('history_item');
+                // Open chat when clicked
+                historyItem.addEventListener('click', () => {
+                    openChat(index);
+                    closeDrawer();
+                });
+                const historyContent = document.createElement('p');
+                historyContent.innerHTML = parseMessageText(decodeURIComponent(chat[chat.length - 1].message));
+                historyItem.appendChild(historyContent);
+                historyList.appendChild(historyItem);
+            });
+
+            function parseMessageText(message) {
+                // Replace ***text*** with bold-italic
+                message = message.replace(/\*\*\*([\s\S]*?)\*\*\*/g, '<span class="bold-italic">$1</span>');
+
+                // Replace **text** with bold
+                message = message.replace(/\*\*([\s\S]*?)\*\*/g, '<span class="bold">$1</span>');
+
+                // Replace *text* with italic
+                message = message.replace(/\*([\s\S]*?)\*/g, '<span class="italic">$1</span>');
+
+                // Replace newline (\n) with line break (<br>)
+                message = message.replace(/\n/g, '<br>');
+
+                return message;
+            }
+        }, false);
+    </script>
+
+</body>
+
+</html>
